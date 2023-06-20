@@ -1,7 +1,7 @@
 #import "Basic";
 
-#import, dir "modules/functional";
-//#import, file "modules/test.jai";
+#import "functional";
+#import "test";
 
 main :: () {
     #if RUN_TESTS_AT_RUN_TIME {
@@ -12,16 +12,13 @@ main :: () {
 }
 
 run_tests :: () {
-    //print("about to run % tests ...\n", tests.count);
+    inner();
 
-    
-    print("now running test %\n", tests);
-
-    /*for tests {
-        print("now running test %\n", it);
-    }*/
-
-    print("all tests ran\n");
+    inner :: () {
+        if #compile_time {
+            #insert #code print("inserted\n");
+        }
+    }
 }
 
 run_program :: () {

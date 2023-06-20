@@ -1,6 +1,5 @@
 #import "Basic";
-
-#import, file "../test.jai";
+#import "test";
 
 // here we create an option data structure with the polymorphic type T.
 // in c# you would use generics and write it like this: "struct Option<T> { }".
@@ -83,10 +82,10 @@ map :: inline (option: Option($T), mapper: (T)->$R) -> Option(R) {
     return None(R);
 }
 
-#run test(1, () => {
+#run test("ensure case 1", () => {
     print("test 1 is running now\n");
 });
 
-#run test(2, () => {
+#run test("ensure case 2", () => {
     print("test 2 is running now\n");
 });
