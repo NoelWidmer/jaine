@@ -1,0 +1,42 @@
+Sprites (CC0):
+===========
+1 bit pack tiles:
+https://www.kenney.nl/assets/bit-pack
+
+Music (CC0):
+===========
+music_build.ogg:
+https://opengameart.org/content/build
+
+
+Sound (CC0):
+===========
+door_open.wav:
+https://opengameart.org/content/rpg-sound-pack
+
+door_close.wav:
+https://opengameart.org/content/door-open-door-close
+
+push.wav:
+https://freesound.org/people/ralph.whitehead/sounds/565727/
+
+option.wav:
+https://opengameart.org/content/8bit-menu-highlight
+
+select.wav:
+cancel.wav:
+https://opengameart.org/content/8bit-menu-select
+
+footstep.wav:
+https://opengameart.org/content/42-snow-and-gravel-footsteps
+
+level_done.wav:
+https://opengameart.org/content/level-up-power-up-coin-get-13-sounds
+
+swish.wav:
+https://opengameart.org/content/swishes-sound-pack
+
+draw_open:
+draw_snap:
+https://freesound.org/people/ec3638/sounds/619994/
+
