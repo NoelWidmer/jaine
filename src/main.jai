@@ -26,23 +26,51 @@ main :: () {
         SDL_GetVersion(*sdl_version);
         print("Using SDL %.%.%\n", sdl_version.major, sdl_version.minor, sdl_version.patch);
     }
+    
+    // load state.
+    {
+        #if OS == .WINDOWS {
+            persistence_path = sprint("%/tea", get_path_os_saved_games());
+        }
 
-    window = create_window(
-        window_name="Tea", 
-        width=window_width, 
-        height=window_height, 
-        background_color_rgb = .[background_color.x, background_color.y, background_color.z]);
+        replace_chars(persistence_path, "\\", #char "/");
+        print("persistent path: %\n", persistence_path);
+
+        persistence_file_path = sprint("%/persistent_state.dat", persistence_path);
+
+        if !try_load_persisted_state() {
+            persisted_state = PersistentState.{
+                version = SAVE_VERSION,
+                fullscreen = false
+            };
+        }
+    }
+
+    // create window
+    {
+        window = create_window(
+            window_name = "Tea", 
+            width = 1920 / 2, 
+            height = 1080 / 2, 
+            background_color_rgb = .[background_color.x, background_color.y, background_color.z]);
+
+        if persisted_state.fullscreen {
+            success, window_width, window_height := toggle_fullscreen(window, true, *prev_window_info);
+            loaded_state.fullscreen = success;
+        } else {
+            loaded_state.fullscreen = false;
+        }
     
-    Simp.set_render_target(window);
+        Simp.set_render_target(window);
+    }
     
-    theme = default_theme_procs[0]();
-    set_default_theme(theme);
+    /*theme = default_theme_procs[0]();
+    set_default_theme(theme);*/
     
     time_prev = seconds_since_init();
 
     while !quit {
-        reset_temporary_storage();
-        
+        reset_temporary_storage();        
         update_window_events();
 
         // @Incomplete: Handle resizes in the actual scene drawing, which we currently don't.
@@ -50,10 +78,12 @@ main :: () {
             Simp.update_window(it.window);
             
             if it.window == window {
-                should_reinit := (it.width != window_width) || (it.height != window_height);
+                //should_reinit := (it.width != loaded_state.window_width) || (it.height != loaded_state.window_height);
                 
-                window_width  = it.width;
-                window_height = it.height;
+                /*if !loaded_state.fullscreen {
+                    loaded_state.window_width  = it.width;
+                    loaded_state.window_height = it.height;
+                }*/
             }
         }
         
@@ -67,6 +97,8 @@ main :: () {
                 case .KEYBOARD;  handle_keyboard_event(it); 
             }            
         }
+
+        consider_persist_loaded_state();
 
         // delta time
         {
@@ -84,20 +116,89 @@ main :: () {
 
 #scope_file
 
+SAVE_VERSION : u32 : 1;
+
+loaded_state : LoadedState = ---;
+LoadedState :: struct {
+    fullscreen: bool;
+}
+
+persisted_state : PersistentState = ---;
+PersistentState :: struct {
+    version: u32;
+    fullscreen: bool;
+}
+
 window : Window_Type;
+prev_window_info : Saved_Window_Info;
 
 background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
-
-window_width : s32 = 1920; 
-window_height : s32 = 1080;
-
-prev_window_info : Saved_Window_Info;
 
 frame_count : int = 0;
 time_prev : float64;
 time_delta : float;
 
-theme : Overall_Theme;
+//theme : Overall_Theme;
+
+persistence_path : string;
+persistence_file_path : string;
+
+try_load_persisted_state :: () -> bool {
+    file, success := file_open(persistence_file_path, false, false, false);
+
+    if success {
+        version : u32 = 0;
+        success = file_read(*file, xx *version, xx size_of(type_of(version)));
+
+        if (success) {
+            file_seek(file, 0, .START);
+
+            if version == SAVE_VERSION {
+                success, bytes_read := file_read(*file, cast(*void) *persisted_state, size_of(PersistentState));
+                file_close(*file);
+
+                if (success) {
+                    return true;
+                } else {
+                    print("ERROR: unable to read persisted state.\n");
+                }
+            }
+            else {
+                print("WARNING: we currently don't convert persited state versions and use the default state instead.\n");
+            }
+        }
+        else
+        {
+            print("ERROR: unable to read persisted state.\n");
+        }
+    }
+
+    return false;
+}
+
+consider_persist_loaded_state :: () {
+    is_persisted_state_current := persisted_state.fullscreen == loaded_state.fullscreen;
+
+    if is_persisted_state_current then return;
+    print("persisting state: %\n", loaded_state);
+
+    make_directory_if_it_does_not_exist(persistence_path, false);
+    file, success := file_open(persistence_file_path, true, false, false);
+
+    if success {
+        // sync persisted state.
+        {
+            persisted_state.fullscreen = loaded_state.fullscreen;
+        }
+
+        success = file_write(*file, cast(*void) *persisted_state, xx size_of(PersistentState));
+        file_close(*file);
+
+        if !success {
+            print("ERROR: unable to persist state.\n");
+        }
+    }
+}
 
 handle_keyboard_event :: (ev: Event) {
     if ev.repeat return;
@@ -107,12 +208,13 @@ handle_keyboard_event :: (ev: Event) {
     if key == .F11 && ev.key_pressed then toggle_fullscreen();
 }
 
-is_fullscreen := false;
-
 toggle_fullscreen :: () {
-    new_state := !is_fullscreen;
-    fullscreen_success, window_width, window_height := toggle_fullscreen(window, new_state, *prev_window_info);
-    if fullscreen_success then is_fullscreen = new_state;
+    new_state := !loaded_state.fullscreen;
+    success, window_width, window_height := toggle_fullscreen(window, new_state, *prev_window_info);
+
+    if success {
+        loaded_state.fullscreen = new_state;
+    }
 }
 
 render :: () {
