@@ -1,6 +1,6 @@
-if not exist "dbg" mkdir dbg
+if not exist "debug" mkdir debug
 
-jai src/build.jai -exe nw -output_path ../dbg
+jai src/build.jai -exe tee -output_path ../debug
 
-xcopy SDL2.dll dbg\ /Y
-xcopy res dbg\res\ /E /Y
+xcopy SDL2.dll debug\ /Y
+xcopy res debug\res\ /E /Y

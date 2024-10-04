@@ -1,6 +1,9 @@
-#import "Windows_Resources";
+//#run disable_runtime_console();
 
-#load "game.jai";
+#import "Windows_Resources";
+#load "main.jai";
+
+/*#load "game.jai";
 #load "map.jai";
 #load "player.jai";
 #load "levels.jai";
@@ -14,6 +17,4 @@
 #load "gamepad.jai";
 #load "scene_game.jai";
 #load "scene_title.jai";
-#load "scene_splash.jai";
-
-//#run disable_runtime_console();
+#load "scene_splash.jai";*/
