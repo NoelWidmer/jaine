@@ -15,29 +15,12 @@
 #import "GetRect";
 Simp :: #import "Simp";
 
-#scope_file
-
-window : Window_Type;
-
-background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
-
-window_width : s32 = 1920; 
-window_height : s32 = 1080;
-
-prev_window_info : Saved_Window_Info;
-
-frame_count : int = 0;
-time_prev : float64;
-time_delta : float;
-
-theme : Overall_Theme;
-
 #scope_module
 
 quit := false;
 
 main :: () {
-    // sdl version
+    // aquire sdl version.
     {
         sdl_version : SDL_version;
         SDL_GetVersion(*sdl_version);
@@ -45,7 +28,7 @@ main :: () {
     }
 
     window = create_window(
-        window_name="Tee", 
+        window_name="Tea", 
         width=window_width, 
         height=window_height, 
         background_color_rgb = .[background_color.x, background_color.y, background_color.z]);
@@ -101,6 +84,21 @@ main :: () {
 
 #scope_file
 
+window : Window_Type;
+
+background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
+
+window_width : s32 = 1920; 
+window_height : s32 = 1080;
+
+prev_window_info : Saved_Window_Info;
+
+frame_count : int = 0;
+time_prev : float64;
+time_delta : float;
+
+theme : Overall_Theme;
+
 handle_keyboard_event :: (ev: Event) {
     if ev.repeat return;
 
@@ -120,11 +118,11 @@ toggle_fullscreen :: () {
 render :: () {
     Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
 
-    k := window_height * .1;
+    /*k := window_height * .1;
     r := get_rect(k*.5, 2.1*k, 3*k, k);
 
     for 0..10 {
         button(r, "test", *theme.button_theme);
         r.y -= k;
-    }
+    }*/
 }
