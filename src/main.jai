@@ -18,8 +18,6 @@ Simp :: #import "Simp";
 
 #scope_module
 
-quit := false;
-
 main :: () {
     // aquire sdl version.
     {
@@ -32,14 +30,13 @@ main :: () {
         window_name = "Lab", 
         width = window_width, 
         height = window_height, 
-        background_color_rgb = .[background_color.x, background_color.y, background_color.z])
+        background_color_rgb = .[background_color.x, background_color.y, background_color.z]);
     
     Simp.set_render_target(window);
     
     // setup time
     {
         time_prev = seconds_since_init();
-        time_current = time_prev;
         time_delta = 0;
     }
 
@@ -57,6 +54,8 @@ main :: () {
                 { } // TODO
             }
         }
+
+        invalidate_pointer_position();
         
         for events_this_frame {
             type := it.type;
@@ -83,8 +82,11 @@ main :: () {
 
 #scope_file
 
+quit := false;
+
 window : Window_Type;
 prev_window_info : Saved_Window_Info;
+is_active_window : bool;
 
 is_fullscreen := false;
 window_width : s32 = 1920 / 2;
@@ -95,6 +97,10 @@ background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
 frame_count : int = 0;
 time_prev : float64;
 time_delta : float;
+
+current_pointer_position : Vector2;
+last_pointer_position : Vector2;
+pointer_position_delta : Vector2;
 
 handle_keyboard_event :: (ev: Event) {
     if ev.repeat return;
@@ -110,14 +116,23 @@ toggle_fullscreen :: () {
     if success then is_fullscreen = new_state;
 }
 
+invalidate_pointer_position :: () {
+    active_window := GetActiveWindow();
+    is_active_window = active_window == window;
+
+    if is_active_window {
+        x, y, success := get_mouse_pointer_position(active_window, true);
+
+        if success {
+            last_pointer_position = current_pointer_position;
+            current_pointer_position = Vector2.{ xx x, xx y };
+            pointer_position_delta = current_pointer_position - last_pointer_position;
+
+            if pointer_position_delta.x > 0 || pointer_position_delta.y > 0 then print("%: %x/%y\n", frame_count, pointer_position_delta.x, pointer_position_delta.y);
+        }
+    }
+}
+
 render :: () {
     Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
-
-    /*k := window_height * .1;
-    r := get_rect(k*.5, 2.1*k, 3*k, k);
-
-    for 0..10 {
-        button(r, "test", *theme.button_theme);
-        r.y -= k;
-    }*/
 }
