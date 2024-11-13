@@ -41,18 +41,17 @@ main :: () {
     }
 
     while !quit {
-        reset_temporary_storage();        
-
+        reset_temporary_storage();
         update_window_events();
 
         // @Incomplete: Handle resizes in the actual scene drawing, which we currently don't.
         for get_window_resizes() {
             Simp.update_window(it.window);
             
-            if it.window == window {
+            /*if it.window == window {
                 if it.width != window_width || it.height != window_height
                 { } // TODO
-            }
+            }*/
         }
 
         invalidate_pointer_position();
@@ -107,7 +106,11 @@ handle_keyboard_event :: (ev: Event) {
 
     key := ev.key_code;
 
-    if key == .F11 && ev.key_pressed then toggle_fullscreen();
+    if key == .F11 {
+        if ev.key_pressed then toggle_fullscreen();
+    } else if key == .MOUSE_BUTTON_LEFT {
+        if !ev.key_pressed then spawn_entity();
+    }
 }
 
 toggle_fullscreen :: () {
@@ -117,22 +120,42 @@ toggle_fullscreen :: () {
 }
 
 invalidate_pointer_position :: () {
-    active_window := GetActiveWindow();
-    is_active_window = active_window == window;
-
-    if is_active_window {
-        x, y, success := get_mouse_pointer_position(active_window, true);
+    if input_application_has_focus {
+        x, y, success := get_mouse_pointer_position(window, true);
 
         if success {
             last_pointer_position = current_pointer_position;
             current_pointer_position = Vector2.{ xx x, xx y };
             pointer_position_delta = current_pointer_position - last_pointer_position;
 
-            if pointer_position_delta.x > 0 || pointer_position_delta.y > 0 then print("%: %x/%y\n", frame_count, pointer_position_delta.x, pointer_position_delta.y);
+            //if pointer_position_delta.x > 0 || pointer_position_delta.y > 0 then print("%: %x/%y\n", frame_count, pointer_position_delta.x, pointer_position_delta.y);
         }
     }
 }
 
+Entity :: struct {
+    pos: Vector2;
+}
+
+entities : [..]Entity;
+
+spawn_entity :: () {
+    entity : Entity = .{
+        pos = current_pointer_position
+    };
+
+    array_add(*entities, entity);
+}
+
 render :: () {
     Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
+    Simp.set_shader_for_color();
+    //print("%", input_application_has_focus);
+
+    //color : Vector4 = .{ 1, 1, 1, 1 };
+
+    for entities {
+        p := it.pos;
+        Simp.immediate_quad(p + .{ -10, -10 }, p + .{ +10, -10 }, p + .{ +10, +10 }, p + .{ -10, +10 });
+    }
 }
