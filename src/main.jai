@@ -97,8 +97,8 @@ frame_count : int = 0;
 time_prev : float64;
 time_delta : float;
 
-current_pointer_position : Vector2;
-last_pointer_position : Vector2;
+current_pointer_pos : Vector2;
+last_pointer_pos : Vector2;
 pointer_position_delta : Vector2;
 
 handle_keyboard_event :: (ev: Event) {
@@ -110,6 +110,8 @@ handle_keyboard_event :: (ev: Event) {
         if ev.key_pressed then toggle_fullscreen();
     } else if key == .MOUSE_BUTTON_LEFT {
         if !ev.key_pressed then spawn_entity();
+    } else if key == .MOUSE_BUTTON_RIGHT {
+        if !ev.key_pressed then despawn_entity();
     }
 }
 
@@ -124,14 +126,17 @@ invalidate_pointer_position :: () {
         x, y, success := get_mouse_pointer_position(window, true);
 
         if success {
-            last_pointer_position = current_pointer_position;
-            current_pointer_position = Vector2.{ xx x, xx y };
-            pointer_position_delta = current_pointer_position - last_pointer_position;
+            last_pointer_pos = current_pointer_pos;
+            current_pointer_pos = Vector2.{ xx x, xx y };
+            pointer_position_delta = current_pointer_pos - last_pointer_pos;
 
             //if pointer_position_delta.x > 0 || pointer_position_delta.y > 0 then print("%: %x/%y\n", frame_count, pointer_position_delta.x, pointer_position_delta.y);
         }
     }
 }
+
+entity_size :: Vector2.{ 20, 20 };
+entity_size_half :: Vector2.{ 10, 10 };
 
 Entity :: struct {
     pos: Vector2;
@@ -141,18 +146,41 @@ entities : [..]Entity;
 
 spawn_entity :: () {
     entity : Entity = .{
-        pos = current_pointer_position
+        pos = current_pointer_pos
     };
 
     array_add(*entities, entity);
 }
 
+despawn_entity :: () {
+    despawned_count := 0;
+
+    for 0..entities.count - 1 {
+        entity_index := it - despawned_count;
+        entity := entities[entity_index];
+
+        if overlaps_aabb(entity, current_pointer_pos) {
+            array_unordered_remove_by_index(*entities, entity_index);
+            despawned_count += 1;
+        }
+    }
+}
+
+overlaps_aabb :: (entity: Entity, point: Vector2) -> bool {
+    pos := entity.pos;
+
+    bottom_left := pos - entity_size_half;
+    if point.x < bottom_left.x || point.y < bottom_left.y {
+        return false;
+    }
+    
+    top_right := pos + entity_size_half;
+    return point.x < top_right.x && point.y < top_right.y;
+}
+
 render :: () {
     Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
     Simp.set_shader_for_color();
-    //print("%", input_application_has_focus);
-
-    //color : Vector4 = .{ 1, 1, 1, 1 };
 
     for entities {
         p := it.pos;
