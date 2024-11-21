@@ -133,6 +133,8 @@ handle_keyboard_event :: (ev: Event) {
         on_mouse_left(ev);
     } else if key == .MOUSE_BUTTON_RIGHT {
         on_mouse_right(ev);
+    } else if key == .DELETE {
+        on_delete(ev);
     }
 }
 
@@ -166,7 +168,7 @@ Entity :: struct {
 }
 
 entities : [..]Entity;
-selected : *Entity;
+selected : s64 = -1;
 
 on_mouse_left :: (ev: Event) {
     if ev.key_pressed then return;
@@ -176,12 +178,12 @@ on_mouse_left :: (ev: Event) {
 try_select_entity :: () -> bool {
     for entities {
         if overlaps_aabb(it, pointer_world_pos) {
-            if selected == *it {
-                selected = null;
+            if selected == it_index {
+                selected = -1;
             } else {
-                selected = *it;
+                selected = it_index;
             }
-            
+
             return true;
         }
     }
@@ -197,6 +199,12 @@ spawn_entity :: () {
     array_add(*entities, entity);
 }
 
+on_delete :: (ev: Event) {
+    if ev.key_pressed || selected == -1 then return;
+    array_unordered_remove_by_index(*entities, selected);
+    selected = -1;
+}
+
 min_drag_distance :: 10;
 is_right_mouse_pressed := false;
 drag_start_pos : Vector2;
@@ -209,10 +217,8 @@ on_mouse_right :: (ev: Event) {
     } else { // key released
         is_right_mouse_pressed = false;
         if is_drag {
-             is_drag = false;
-        } else {
-             despawn_entity();
-        }
+            is_drag = false;
+        } // else show context menu
     }
 }
 
@@ -240,16 +246,6 @@ invalidate_bottom_left :: () {
     screen_bottom_left = cam_pos - screen_size * .5;
 }
 
-despawn_entity :: () {
-    for entities {
-        if overlaps_aabb(it, pointer_world_pos) {
-            remove it;
-
-            if selected == *it then selected = null;
-        }
-    }
-}
-
 overlaps_aabb :: (entity: Entity, point: Vector2) -> bool {
     pos := entity.pos;
 
@@ -266,7 +262,7 @@ render :: () {
     Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
     Simp.set_shader_for_color();
 
-    if selected != null then draw_square(selected.pos, entity_size_half.x + 3, .{ 1, .5, 0, 1 });
+    if selected != -1 then draw_square(entities[selected].pos, entity_size_half.x + 3, .{ 1, .5, 0, 1 });
 
     for entities {
         draw_square(it.pos, entity_size_half.x, .{ 1, 1, 1, 1 });
