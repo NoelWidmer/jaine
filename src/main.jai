@@ -14,61 +14,28 @@
 #import "System";
 #import "SDL";
 #import "GetRect";
-Simp :: #import "Simp";
 
-#scope_module
+#load "PositionHandle2.jai";
+#load "draw.jai";
+#load "world.jai";
+#load "window.jai";
+#load "pointer.jai";
 
-main :: () {
-    // aquire sdl version.
-    {
+main :: () {   
+    { // aquire sdl version.
         sdl_version : SDL_version;
         SDL_GetVersion(*sdl_version);
         print("Using SDL %.%.%\n", sdl_version.major, sdl_version.minor, sdl_version.patch);
     }
 
-    window = create_window(
-        window_name = "Lab", 
-        width = window_width, 
-        height = window_height, 
-        background_color_rgb = .[background_color.x, background_color.y, background_color.z]);
+    create_window();
 
-    on_window_size_changed();
-    Simp.set_render_target(window);
-    
-    // setup time
-    {
-        time_prev = seconds_since_init();
-        time_delta = 0;
-    }
+    time_prev = seconds_since_init();
 
-    while !quit {
-        reset_temporary_storage();
-        update_window_events();
+    while !quit { // main game loop
+        pre_render();
+        render();
 
-        for get_window_resizes() {
-            Simp.update_window(it.window);
-            
-            if it.window == window {
-                window_width = it.width;
-                window_height = it.height;
-                on_window_size_changed();
-            }
-        }
-
-        invalidate_pointer_screen_position();
-        
-        for events_this_frame {
-            type := it.type;
-
-            if type == {
-                case .QUIT; quit = true;
-                case .KEYBOARD;  handle_keyboard_event(it); 
-            }            
-        }
-
-        consider_drag();
-
-        render();        
         Simp.swap_buffers(window);
         
         // update time
@@ -82,45 +49,9 @@ main :: () {
     }
 }
 
-#scope_file
-
-quit := false;
-
-window : Window_Type;
-prev_window_info : Saved_Window_Info;
-
-is_fullscreen := false;
-window_width : s32 = 1920 / 2;
-window_height : s32 = 1080 / 2;
-
-screen_size : Vector2;
-screen_bottom_left : Vector2;
-
-cam_pos : Vector2;
-
-on_window_size_changed :: () {
-    screen_size = .{ xx window_width, xx window_height };
-    invalidate_bottom_left();
+quit :: () {
+    quit = true;
 }
-
-world_to_screen_pos :: (world_pos: Vector2) -> Vector2 {
-    return world_pos - screen_bottom_left;
-}
-
-screen_to_world_pos :: (screen_pos: Vector2) -> Vector2 {
-    return screen_pos + screen_bottom_left;
-}
-
-background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
-
-frame_count : int = 0;
-time_prev : float64;
-time_delta : float;
-
-pointer_world_pos : Vector2;
-pointer_screen_pos : Vector2;
-last_pointer_screen_pos : Vector2;
-pointer_screen_delta : Vector2;
 
 handle_keyboard_event :: (ev: Event) {
     if ev.repeat return;
@@ -128,7 +59,10 @@ handle_keyboard_event :: (ev: Event) {
     key := ev.key_code;
 
     if key == .F11 {
-        if ev.key_pressed then toggle_fullscreen();
+        if ev.key_pressed {
+            toggle_fullscreen();
+            invalidate_pointer_screen_position();
+        }
     } else if key == .MOUSE_BUTTON_LEFT {
         on_mouse_left(ev);
     } else if key == .MOUSE_BUTTON_RIGHT {
@@ -138,27 +72,47 @@ handle_keyboard_event :: (ev: Event) {
     }
 }
 
-toggle_fullscreen :: () {
-    new_state := !is_fullscreen;
-    success, window_width, window_height := toggle_fullscreen(window, new_state, *prev_window_info);
-    if success then is_fullscreen = new_state;
+#scope_file
+
+quit : bool;
+
+frame_count : int;
+time_prev : float64;
+time_delta : float;
+
+pre_render :: () {
+    reset_temporary_storage();    
+    pre_render_window();
+    maybe_drag();
+    invalidate_viewport();
 }
 
-invalidate_pointer_screen_position :: () {
-    if input_application_has_focus {
-        x, y, success := get_mouse_pointer_position(window, true);
+is_right_mouse_pressed := false;
+min_drag_distance :: 10;
+is_drag := false;
+drag_start_pos : Vector2;
 
-        if success {
-            last_pointer_screen_pos = pointer_screen_pos;
-            pointer_screen_pos = Vector2.{ xx x, xx y };
-            pointer_screen_delta = pointer_screen_pos - last_pointer_screen_pos;
+maybe_drag :: () {
+    if !is_right_mouse_pressed then return;
 
-            pointer_world_pos = pointer_screen_pos + screen_bottom_left;
+    if is_drag {
+        drag();
+    } else {
+        drag_vec := pointer_screen_pos - drag_start_pos;
 
-            //if pointer_screen_delta.x > 0 || pointer_screen_delta.y > 0 then print("%: %x/%y\n", frame_count, pointer_screen_delta.x, pointer_screen_delta.y);
+        if length(drag_vec) >= min_drag_distance {
+            is_drag = true;
+            drag();
         }
     }
 }
+
+drag :: () {
+    move_camera(-pointer_delta);
+}
+
+entities : [..]Entity;
+selected : s64 = -1;
 
 entity_size :: Vector2.{ 20, 20 };
 entity_size_half :: Vector2.{ 10, 10 };
@@ -166,9 +120,6 @@ entity_size_half :: Vector2.{ 10, 10 };
 Entity :: struct {
     pos: Vector2;
 }
-
-entities : [..]Entity;
-selected : s64 = -1;
 
 on_mouse_left :: (ev: Event) {
     if ev.key_pressed then return;
@@ -205,11 +156,6 @@ on_delete :: (ev: Event) {
     selected = -1;
 }
 
-min_drag_distance :: 10;
-is_right_mouse_pressed := false;
-drag_start_pos : Vector2;
-is_drag := false;
-
 on_mouse_right :: (ev: Event) {
     if ev.key_pressed {
         is_right_mouse_pressed = true;
@@ -220,30 +166,6 @@ on_mouse_right :: (ev: Event) {
             is_drag = false;
         } // else show context menu
     }
-}
-
-consider_drag :: () {
-    if !is_right_mouse_pressed then return;
-
-    if is_drag {
-        drag();
-    } else {
-        drag_vec := pointer_screen_pos - drag_start_pos;
-
-        if length(drag_vec) >= min_drag_distance {
-            is_drag = true;
-            drag();
-        }
-    }
-}
-
-drag :: () {
-    cam_pos = cam_pos - pointer_screen_delta;
-    invalidate_bottom_left();
-}
-
-invalidate_bottom_left :: () {
-    screen_bottom_left = cam_pos - screen_size * .5;
 }
 
 overlaps_aabb :: (entity: Entity, point: Vector2) -> bool {
@@ -259,89 +181,23 @@ overlaps_aabb :: (entity: Entity, point: Vector2) -> bool {
 }
 
 render :: () {
-    Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
+    { // clear
+        background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
+        Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
+    }
+
     Simp.set_shader_for_color();
 
     for entities {
         draw_rect(it.pos, entity_size, .{ 1, 1, 1, 1 });
     }
 
-    consider_drawing_handle();
-}
-
-draw_rect :: (world_pos: Vector2, size: Vector2, color: Vector4) {
-    screen_pos := world_to_screen_pos(world_pos);
-
-    half_size_x := size.x * .5;
-    half_size_y := size.y * .5;
-
-    Simp.immediate_quad(
-        screen_pos + .{ -half_size_x, -half_size_y }, 
-        screen_pos + .{ half_size_x, -half_size_y }, 
-        screen_pos + .{ half_size_x, half_size_y }, 
-        screen_pos + .{ -half_size_x, half_size_y },
-        color);
-}
-
-draw_tri :: (origin: Vector2, size: Vector2, dir: Vector2, color: Vector4) {
-    screen_origin := world_to_screen_pos(origin);
-    cross_dir : Vector2 = .{ dir.y, -dir.x };
-
-    v1 := screen_origin + cross_dir * size.x * .5;
-    v2 := screen_origin + dir * size.y;
-    v3 := v1 - cross_dir * size.x;
-    
-    Simp.immediate_triangle(
-        .{ v1.x, v1.y, 0 }, 
-        .{ v2.x, v2.y, 0 },
-        .{ v3.x, v3.y, 0 }, 
-        color, color, color);
-}
-
-handle_length : float = 100;
-handle_arrow_length : float = 20;
-
-consider_drawing_handle :: () {
-    if selected == -1 return;
-
-    entity := entities[selected];
-    pos := entity.pos;
-    
-    // xy
+    // consider_drawing_handle
     {
-        pos_xy : Vector2 = .{ pos.x + .5 + handle_arrow_length * .5, pos.y + .5 + handle_arrow_length * .5 };
-        draw_rect(pos_xy, .{ handle_arrow_length, handle_arrow_length }, .{ 0, 0, 1, .25 });
-    }
+        if selected == -1 return;
 
-    // x
-    {
-        color : Vector4 = .{ 1, 0, 0, 1 };
-        
-        draw_rect(
-            .{ pos.x + handle_length * .5, pos.y }, 
-            .{ handle_length, 1 }, 
-            color);
-        
-        draw_tri(
-            .{ pos.x + handle_length, pos.y }, 
-            .{ handle_arrow_length, handle_arrow_length }, 
-            .{ 1, 0 }, 
-            color);
-    }
-    
-    // y
-    {
-        color : Vector4 = .{ 0, 1, 0, 1 };
-
-        draw_rect(
-            .{ pos.x, pos.y + handle_length * .5 }, 
-            .{ 1, handle_length }, 
-            color);
-
-        draw_tri(
-            .{ pos.x, pos.y + handle_length }, 
-            .{ handle_arrow_length, handle_arrow_length }, 
-            .{ 0, 1 }, 
-            color);
+        entity := entities[selected];
+        handle : PositionHandle2 = .{ entity.pos };
+        draw_handle(handle);
     }
 }
