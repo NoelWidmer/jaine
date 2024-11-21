@@ -262,20 +262,86 @@ render :: () {
     Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
     Simp.set_shader_for_color();
 
-    if selected != -1 then draw_square(entities[selected].pos, entity_size_half.x + 3, .{ 1, .5, 0, 1 });
-
     for entities {
-        draw_square(it.pos, entity_size_half.x, .{ 1, 1, 1, 1 });
+        draw_rect(it.pos, entity_size, .{ 1, 1, 1, 1 });
     }
+
+    consider_drawing_handle();
 }
 
-draw_square :: (world_pos: Vector2, half_size: float, color: Vector4) {
+draw_rect :: (world_pos: Vector2, size: Vector2, color: Vector4) {
     screen_pos := world_to_screen_pos(world_pos);
 
+    half_size_x := size.x * .5;
+    half_size_y := size.y * .5;
+
     Simp.immediate_quad(
-        screen_pos + .{ -half_size, -half_size }, 
-        screen_pos + .{ half_size, -half_size }, 
-        screen_pos + .{ half_size, half_size }, 
-        screen_pos + .{ -half_size, half_size },
+        screen_pos + .{ -half_size_x, -half_size_y }, 
+        screen_pos + .{ half_size_x, -half_size_y }, 
+        screen_pos + .{ half_size_x, half_size_y }, 
+        screen_pos + .{ -half_size_x, half_size_y },
         color);
+}
+
+draw_tri :: (origin: Vector2, size: Vector2, dir: Vector2, color: Vector4) {
+    screen_origin := world_to_screen_pos(origin);
+    cross_dir : Vector2 = .{ dir.y, -dir.x };
+
+    v1 := screen_origin + cross_dir * size.x * .5;
+    v2 := screen_origin + dir * size.y;
+    v3 := v1 - cross_dir * size.x;
+    
+    Simp.immediate_triangle(
+        .{ v1.x, v1.y, 0 }, 
+        .{ v2.x, v2.y, 0 },
+        .{ v3.x, v3.y, 0 }, 
+        color, color, color);
+}
+
+handle_length : float = 100;
+handle_arrow_length : float = 20;
+
+consider_drawing_handle :: () {
+    if selected == -1 return;
+
+    entity := entities[selected];
+    pos := entity.pos;
+    
+    // xy
+    {
+        pos_xy : Vector2 = .{ pos.x + .5 + handle_arrow_length * .5, pos.y + .5 + handle_arrow_length * .5 };
+        draw_rect(pos_xy, .{ handle_arrow_length, handle_arrow_length }, .{ 0, 0, 1, .25 });
+    }
+
+    // x
+    {
+        color : Vector4 = .{ 1, 0, 0, 1 };
+        
+        draw_rect(
+            .{ pos.x + handle_length * .5, pos.y }, 
+            .{ handle_length, 1 }, 
+            color);
+        
+        draw_tri(
+            .{ pos.x + handle_length, pos.y }, 
+            .{ handle_arrow_length, handle_arrow_length }, 
+            .{ 1, 0 }, 
+            color);
+    }
+    
+    // y
+    {
+        color : Vector4 = .{ 0, 1, 0, 1 };
+
+        draw_rect(
+            .{ pos.x, pos.y + handle_length * .5 }, 
+            .{ 1, handle_length }, 
+            color);
+
+        draw_tri(
+            .{ pos.x, pos.y + handle_length }, 
+            .{ handle_arrow_length, handle_arrow_length }, 
+            .{ 0, 1 }, 
+            color);
+    }
 }
