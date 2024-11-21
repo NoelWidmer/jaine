@@ -31,7 +31,8 @@ main :: () {
         width = window_width, 
         height = window_height, 
         background_color_rgb = .[background_color.x, background_color.y, background_color.z]);
-    
+
+    on_window_size_changed();
     Simp.set_render_target(window);
     
     // setup time
@@ -44,17 +45,17 @@ main :: () {
         reset_temporary_storage();
         update_window_events();
 
-        // @Incomplete: Handle resizes in the actual scene drawing, which we currently don't.
         for get_window_resizes() {
             Simp.update_window(it.window);
             
-            /*if it.window == window {
-                if it.width != window_width || it.height != window_height
-                { } // TODO
-            }*/
+            if it.window == window {
+                window_width = it.width;
+                window_height = it.height;
+                on_window_size_changed();
+            }
         }
 
-        invalidate_pointer_position();
+        invalidate_pointer_screen_position();
         
         for events_this_frame {
             type := it.type;
@@ -64,6 +65,8 @@ main :: () {
                 case .KEYBOARD;  handle_keyboard_event(it); 
             }            
         }
+
+        consider_drag();
 
         render();        
         Simp.swap_buffers(window);
@@ -85,11 +88,20 @@ quit := false;
 
 window : Window_Type;
 prev_window_info : Saved_Window_Info;
-is_active_window : bool;
 
 is_fullscreen := false;
 window_width : s32 = 1920 / 2;
 window_height : s32 = 1080 / 2;
+
+screen_size : Vector2;
+screen_bottom_left : Vector2;
+
+cam_pos : Vector2;
+
+on_window_size_changed :: () {
+    screen_size = .{ xx window_width, xx window_height };
+    invalidate_bottom_left();
+}
 
 background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
 
@@ -97,9 +109,10 @@ frame_count : int = 0;
 time_prev : float64;
 time_delta : float;
 
-current_pointer_pos : Vector2;
-last_pointer_pos : Vector2;
-pointer_position_delta : Vector2;
+pointer_world_pos : Vector2;
+pointer_screen_pos : Vector2;
+last_pointer_screen_pos : Vector2;
+pointer_screen_delta : Vector2;
 
 handle_keyboard_event :: (ev: Event) {
     if ev.repeat return;
@@ -111,7 +124,7 @@ handle_keyboard_event :: (ev: Event) {
     } else if key == .MOUSE_BUTTON_LEFT {
         if !ev.key_pressed then spawn_entity();
     } else if key == .MOUSE_BUTTON_RIGHT {
-        if !ev.key_pressed then despawn_entity();
+        on_mouse_right(ev);
     }
 }
 
@@ -121,16 +134,18 @@ toggle_fullscreen :: () {
     if success then is_fullscreen = new_state;
 }
 
-invalidate_pointer_position :: () {
+invalidate_pointer_screen_position :: () {
     if input_application_has_focus {
         x, y, success := get_mouse_pointer_position(window, true);
 
         if success {
-            last_pointer_pos = current_pointer_pos;
-            current_pointer_pos = Vector2.{ xx x, xx y };
-            pointer_position_delta = current_pointer_pos - last_pointer_pos;
+            last_pointer_screen_pos = pointer_screen_pos;
+            pointer_screen_pos = Vector2.{ xx x, xx y };
+            pointer_screen_delta = pointer_screen_pos - last_pointer_screen_pos;
 
-            //if pointer_position_delta.x > 0 || pointer_position_delta.y > 0 then print("%: %x/%y\n", frame_count, pointer_position_delta.x, pointer_position_delta.y);
+            pointer_world_pos = pointer_screen_pos + screen_bottom_left;
+
+            //if pointer_screen_delta.x > 0 || pointer_screen_delta.y > 0 then print("%: %x/%y\n", frame_count, pointer_screen_delta.x, pointer_screen_delta.y);
         }
     }
 }
@@ -146,10 +161,54 @@ entities : [..]Entity;
 
 spawn_entity :: () {
     entity : Entity = .{
-        pos = current_pointer_pos
+        pos = pointer_world_pos
     };
 
     array_add(*entities, entity);
+}
+
+min_drag_distance :: 10;
+is_right_mouse_pressed := false;
+drag_start_pos : Vector2;
+is_drag := false;
+
+on_mouse_right :: (ev: Event) {
+    if ev.key_pressed {
+        is_right_mouse_pressed = true;
+        drag_start_pos = pointer_screen_pos;
+    } else { // key released
+        is_right_mouse_pressed = false;
+        if is_drag {
+             is_drag = false;
+        } else {
+             despawn_entity();
+        }
+    }
+}
+
+consider_drag :: () {
+    if !is_right_mouse_pressed then return;
+
+    if is_drag {
+        drag();
+    } else {
+        drag_vec := pointer_screen_pos - drag_start_pos;
+
+        if length(drag_vec) >= min_drag_distance {
+            is_drag = true;
+            drag();
+        }
+    }
+}
+
+drag :: () {
+    cam_pos = cam_pos - pointer_screen_delta;
+    invalidate_bottom_left();
+}
+
+invalidate_bottom_left :: () {
+    screen_bottom_left = cam_pos - screen_size * .5;
+    print("%\n", screen_bottom_left);
 }
 
 despawn_entity :: () {
@@ -159,7 +218,7 @@ despawn_entity :: () {
         entity_index := it - despawned_count;
         entity := entities[entity_index];
 
-        if overlaps_aabb(entity, current_pointer_pos) {
+        if overlaps_aabb(entity, pointer_world_pos) {
             array_unordered_remove_by_index(*entities, entity_index);
             despawned_count += 1;
         }
@@ -183,7 +242,15 @@ render :: () {
     Simp.set_shader_for_color();
 
     for entities {
-        p := it.pos;
-        Simp.immediate_quad(p + .{ -10, -10 }, p + .{ +10, -10 }, p + .{ +10, +10 }, p + .{ -10, +10 });
+        screen_size : Vector2 = .{ xx window_width, xx window_height };
+        screen_bottom_left := cam_pos - screen_size * .5;
+
+        pos := it.pos - screen_bottom_left;
+
+        Simp.immediate_quad(
+            pos + .{ -entity_size_half.x, -entity_size_half.y }, 
+            pos + .{ entity_size_half.x, -entity_size_half.y }, 
+            pos + .{ entity_size_half.x, entity_size_half.y }, 
+            pos + .{ -entity_size_half.x, entity_size_half.y });
     }
 }
