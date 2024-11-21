@@ -32,7 +32,24 @@ pre_render_window :: () {
 
         if type == {
             case .QUIT; quit();
-            case .KEYBOARD;  handle_keyboard_event(it); 
+            case .KEYBOARD;
+            {
+                if it.repeat return;                
+                key := it.key_code;
+                
+                if key == .F11 {
+                    if it.key_pressed {
+                        toggle_fullscreen();
+                        invalidate_pointer_screen_position();
+                    }
+                } else if key == .MOUSE_BUTTON_LEFT {
+                    on_mouse_left(it);
+                } else if key == .MOUSE_BUTTON_RIGHT {
+                    on_mouse_right(it);
+                } else if key == .DELETE {
+                    delete_selected_entity(it);
+                }
+            }
         }            
     }
 }
