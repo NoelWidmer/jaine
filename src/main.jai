@@ -103,6 +103,14 @@ on_window_size_changed :: () {
     invalidate_bottom_left();
 }
 
+world_to_screen_pos :: (world_pos: Vector2) -> Vector2 {
+    return world_pos - screen_bottom_left;
+}
+
+screen_to_world_pos :: (screen_pos: Vector2) -> Vector2 {
+    return screen_pos + screen_bottom_left;
+}
+
 background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
 
 frame_count : int = 0;
@@ -122,7 +130,7 @@ handle_keyboard_event :: (ev: Event) {
     if key == .F11 {
         if ev.key_pressed then toggle_fullscreen();
     } else if key == .MOUSE_BUTTON_LEFT {
-        if !ev.key_pressed then spawn_entity();
+        on_mouse_left(ev);
     } else if key == .MOUSE_BUTTON_RIGHT {
         on_mouse_right(ev);
     }
@@ -158,6 +166,28 @@ Entity :: struct {
 }
 
 entities : [..]Entity;
+selected : *Entity;
+
+on_mouse_left :: (ev: Event) {
+    if ev.key_pressed then return;
+    if !try_select_entity() then spawn_entity();
+}
+
+try_select_entity :: () -> bool {
+    for entities {
+        if overlaps_aabb(it, pointer_world_pos) {
+            if selected == *it {
+                selected = null;
+            } else {
+                selected = *it;
+            }
+            
+            return true;
+        }
+    }
+
+    return false;
+}
 
 spawn_entity :: () {
     entity : Entity = .{
@@ -208,19 +238,14 @@ drag :: () {
 
 invalidate_bottom_left :: () {
     screen_bottom_left = cam_pos - screen_size * .5;
-    print("%\n", screen_bottom_left);
 }
 
 despawn_entity :: () {
-    despawned_count := 0;
+    for entities {
+        if overlaps_aabb(it, pointer_world_pos) {
+            remove it;
 
-    for 0..entities.count - 1 {
-        entity_index := it - despawned_count;
-        entity := entities[entity_index];
-
-        if overlaps_aabb(entity, pointer_world_pos) {
-            array_unordered_remove_by_index(*entities, entity_index);
-            despawned_count += 1;
+            if selected == *it then selected = null;
         }
     }
 }
@@ -241,16 +266,20 @@ render :: () {
     Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
     Simp.set_shader_for_color();
 
+    if selected != null then draw_square(selected.pos, entity_size_half.x + 3, .{ 1, .5, 0, 1 });
+
     for entities {
-        screen_size : Vector2 = .{ xx window_width, xx window_height };
-        screen_bottom_left := cam_pos - screen_size * .5;
-
-        pos := it.pos - screen_bottom_left;
-
-        Simp.immediate_quad(
-            pos + .{ -entity_size_half.x, -entity_size_half.y }, 
-            pos + .{ entity_size_half.x, -entity_size_half.y }, 
-            pos + .{ entity_size_half.x, entity_size_half.y }, 
-            pos + .{ -entity_size_half.x, entity_size_half.y });
+        draw_square(it.pos, entity_size_half.x, .{ 1, 1, 1, 1 });
     }
+}
+
+draw_square :: (world_pos: Vector2, half_size: float, color: Vector4) {
+    screen_pos := world_to_screen_pos(world_pos);
+
+    Simp.immediate_quad(
+        screen_pos + .{ -half_size, -half_size }, 
+        screen_pos + .{ half_size, -half_size }, 
+        screen_pos + .{ half_size, half_size }, 
+        screen_pos + .{ -half_size, half_size },
+        color);
 }
