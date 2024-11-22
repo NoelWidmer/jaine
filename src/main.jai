@@ -22,6 +22,7 @@
 #load "Entity.jai";
 #load "selection.jai";
 #load "input_handler.jai";
+#load "math.jai";
 
 main :: () {   
     { // aquire sdl version.
@@ -39,7 +40,6 @@ main :: () {
         pre_render_window();
         maybe_drag();
         invalidate_viewport();
-        maybe_interact_with_selection_handle();
 
         render();
 

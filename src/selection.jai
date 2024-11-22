@@ -1,5 +1,10 @@
 #import "GetRect";
 
+get_selected :: () -> *Entity {
+    if selected == -1 then return null;
+    return *entities[selected];
+}
+
 try_select_entity :: () -> bool {
     for entities {
         rect := get_entity_rect(it);
@@ -32,9 +37,9 @@ draw_selection_handle :: () {
     draw_handle(handle);
 }
 
-maybe_interact_with_selection_handle :: () {
-    if selected == -1 return;
-    // TODO
+overlaps_handle :: () -> bool {
+    if selected == -1 return false;
+    return overlaps_asd(handle);
 }
 
 #scope_file

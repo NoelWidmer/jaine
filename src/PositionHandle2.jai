@@ -5,19 +5,6 @@ PositionHandle2 :: struct {
     quad_xy: Quad;
 }
 
-Tri :: struct {
-    v1: Vector2;
-    v2: Vector2;
-    v3: Vector2;
-}
-
-Quad :: struct {
-    v1: Vector2;
-    v2: Vector2;
-    v3: Vector2;
-    v4: Vector2;
-}
-
 new_handle :: (pos: Vector2, dir_x: Vector2) -> PositionHandle2 {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
@@ -101,8 +88,8 @@ draw_handle :: (handle: PositionHandle2) {
     draw_quad_raw(handle.quad_xy, .{ 0, 0, 1, .25 });
 }
 
-get_interaction_vector :: (handle: PositionHandle2) -> bool, Vector2 {
-
+overlaps_asd :: (handle: PositionHandle2) -> bool {
+    return is_inside_quad(pointer_world_pos, handle.quad_xy);
 }
 
 #scope_file
@@ -114,11 +101,3 @@ handle_half_length :: handle_length * .5;
 handle_arrow_half_height :: handle_arrow_height * .5;
 handle_arrow_width :: handle_arrow_height * .75;
 handle_arrow_half_width :: handle_arrow_width * .5;
-
-rotate_dir_90_deg_cw :: (dir: Vector2) -> Vector2 {
-    return .{ dir.y, -dir.x };
-}
-
-rotate_dir_90_deg_ccw :: (dir: Vector2) -> Vector2 {
-    return .{ -dir.y, dir.x };
-}
