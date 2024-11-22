@@ -38,7 +38,7 @@ rotate_around_pivot :: (point: Vector2, pivot: Vector2, angle: float) -> Vector2
 }
 
 rotate_around_origin :: (point: Vector2, angle: float) -> Vector2 {
-    angle_rad := angle * PI / 180;
+    angle_rad := angle * deg2rad;
 
     s := sin(angle_rad);
     c := cos(angle_rad);
@@ -48,6 +48,24 @@ rotate_around_origin :: (point: Vector2, angle: float) -> Vector2 {
         point.x * s + point.y * c 
     };
 }
+
+angle :: (u: Vector2, v: Vector2) -> float {    
+    d := dot(u, v);
+    magU := length(u);
+    magV := length(v);
+
+    if magU == 0 || magV == 0 then return 0;
+
+    cosTheta := d / (magU * magV);
+
+    if cosTheta > 1 then cosTheta = 1;
+    if cosTheta < -1 then cosTheta = -1;
+
+    return acos(cosTheta) * rad2deg;
+}
+
+deg2rad :: PI / 180;
+rad2deg :: 180 / PI;
 
 #scope_file
 

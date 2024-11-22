@@ -24,7 +24,7 @@ new_vector2_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
         offset := dir_y * gizmo_arrow_half_width;
 
         tri_x = .{
-            base + dir_x * gizmo_arrow_height,
+            base + dir_x * gizmo_interaction_size,
             base + offset,
             base - offset,
         };
@@ -36,7 +36,7 @@ new_vector2_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
         offset := dir_x * gizmo_arrow_half_width;
 
         tri_y = .{
-            base + dir_y * gizmo_arrow_height,
+            base + dir_y * gizmo_interaction_size,
             base + offset,
             base - offset,
         };
@@ -44,12 +44,12 @@ new_vector2_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
 
     quad_xy : Quad = ---;
     {
-        v1_offset := gizmo_half_length - gizmo_arrow_half_height;
+        v1_offset := gizmo_half_length - gizmo_interaction_half_size;
         v1 := pos + dir_x * v1_offset + dir_y * v1_offset;
 
-        v2 := Vector2.{ v1.x + gizmo_arrow_height, v1.y };
+        v2 := Vector2.{ v1.x + gizmo_interaction_size, v1.y };
 
-        v3_v4_offset := dir_y * gizmo_arrow_height;
+        v3_v4_offset := dir_y * gizmo_interaction_size;
 
         quad_xy = .{ 
             v1, 
@@ -106,13 +106,13 @@ get_gizmo_mode :: (gizmo: Vector2Gizmo) -> GizmoMode {
 }
 
 gizmo_length :: 100;
-gizmo_arrow_height :: gizmo_length * .2;
+gizmo_interaction_size :: gizmo_length * .2;
 
 #scope_file
 
 gizmo_half_length :: gizmo_length * .5;
 
-gizmo_arrow_half_height :: gizmo_arrow_height * .5;
+gizmo_interaction_half_size :: gizmo_interaction_size * .5;
 
-gizmo_arrow_width :: gizmo_arrow_height * .75;
+gizmo_arrow_width :: gizmo_interaction_size * .75;
 gizmo_arrow_half_width :: gizmo_arrow_width * .5;
