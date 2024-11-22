@@ -2,10 +2,10 @@ on_mouse_left :: (ev: Event) {
     if ev.key_pressed {
         is_left_mouse_pressed = true;
         left_drag_start_pos = pointer_screen_pos;
-        handle_mode = overlaps_handle();
+        gizmo_mode = overlaps_gizmo();
     } else {
         is_left_mouse_pressed = false;
-        handle_mode = false;
+        gizmo_mode = false;
 
         if is_left_drag {
             is_left_drag = false;
@@ -70,14 +70,14 @@ right_drag_start_pos : Vector2;
 
 min_drag_distance :: 10;
 
-handle_mode : bool;
+gizmo_mode : bool;
 
 drag_right :: () {
     move_camera(-pointer_delta);
 }
 
 drag_left :: () {
-    if handle_mode {
+    if gizmo_mode {
         selected := get_selected();
         selected.pos += pointer_delta;
     }

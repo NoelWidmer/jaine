@@ -14,7 +14,7 @@ try_select_entity :: () -> bool {
                 selected = -1;
             } else {
                 selected = it_index;
-                invalidate_handle();
+                invalidate_gizmo();
             }
 
             return true;
@@ -30,24 +30,24 @@ delete_selected_entity :: (ev: Event) {
     selected = -1;
 }
 
-draw_selection_handle :: () {
+draw_selection_gizmo :: () {
     if selected == -1 return;
 
-    invalidate_handle();
-    draw_handle(handle);
+    invalidate_gizmo();
+    draw_gizmo(gizmo);
 }
 
-overlaps_handle :: () -> bool {
+overlaps_gizmo :: () -> bool {
     if selected == -1 return false;
-    return overlaps_asd(handle);
+    return overlaps_asd(gizmo);
 }
 
 #scope_file
 
 selected : s64 = -1;
-handle : PositionHandle2;
+gizmo : Vector2Gizmo;
 
-invalidate_handle :: () {
+invalidate_gizmo :: () {
     entity := entities[selected];
-    handle = new_handle(entity.pos, .{ 1, 0 });
+    gizmo = new_gizmo(entity.pos, .{ 1, 0 });
 }

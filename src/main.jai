@@ -14,7 +14,7 @@
 #import "System";
 #import "SDL";
 
-#load "PositionHandle2.jai";
+#load "Vector2Gizmo.jai";
 #load "draw.jai";
 #load "camera.jai";
 #load "window.jai";
@@ -77,5 +77,5 @@ render :: () {
     Simp.set_shader_for_color();
 
     draw_entities();
-    draw_selection_handle();
+    draw_selection_gizmo();
 }
