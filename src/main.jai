@@ -39,6 +39,7 @@ main :: () {
         pre_render_window();
         maybe_drag();
         invalidate_viewport();
+        maybe_interact_with_selection_handle();
 
         render();
 
@@ -69,20 +70,12 @@ time_delta : float;
 
 render :: () {
     { // clear
-        background_color :: Vector4.{201 / 255.0, 17 / 255.0, 69 / 255.0, 1};
+        background_color :: Vector4.{ .1, .1, .2, 1};
         Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
     }
 
     Simp.set_shader_for_color();
 
     draw_entities();
-
-    // consider_drawing_handle
-    {
-        if selected == -1 return;
-
-        entity := entities[selected];
-        handle : PositionHandle2 = .{ entity.pos };
-        draw_handle(handle);
-    }
+    draw_selection_handle();
 }

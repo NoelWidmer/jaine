@@ -1,30 +1,88 @@
 PositionHandle2 :: struct {
     pos: Vector2;
+    tri_x: Tri;
+    tri_y: Tri;
+    quad_xy: Quad;
 }
 
-draw_handle :: (handle: PositionHandle2) { // TODO direction parameter. for now this is axis-aligned.
-    pos := handle.pos;
+Tri :: struct {
+    v1: Vector2;
+    v2: Vector2;
+    v3: Vector2;
+}
 
-    // xy
+Quad :: struct {
+    v1: Vector2;
+    v2: Vector2;
+    v3: Vector2;
+    v4: Vector2;
+}
+
+new_handle :: (pos: Vector2, dir_x: Vector2) -> PositionHandle2 {
+    dir_y := rotate_dir_90_deg_ccw(dir_x);
+
+    tri_x : Tri = ---;
     {
-        pos_xy : Vector2 = .{ pos.x + .5 + handle_arrow_height * .5, pos.y + .5 + handle_arrow_height * .5 };
-        draw_rect(pos_xy, .{ handle_arrow_height, handle_arrow_height }, .{ 0, 0, 1, .25 });
+        base := pos + dir_x * handle_length;
+        offset := dir_y * handle_arrow_half_width;
+
+        tri_x = .{
+            base + dir_x * handle_arrow_height,
+            base + offset,
+            base - offset,
+        };
     }
+
+    tri_y : Tri = ---;
+    {
+        base := pos + dir_y * handle_length;
+        offset := dir_x * handle_arrow_half_width;
+
+        tri_y = .{
+            base + dir_y * handle_arrow_height,
+            base + offset,
+            base - offset,
+        };
+    }
+
+    quad_xy : Quad = ---;
+    {
+        v1_offset := handle_half_length - handle_arrow_half_height;
+        v1 := pos + dir_x * v1_offset + dir_y * v1_offset;
+
+        v2 := Vector2.{ v1.x + handle_arrow_height, v1.y };
+
+        v3_v4_offset := dir_y * handle_arrow_height;
+
+        quad_xy = .{ 
+            v1, 
+            v2, 
+            v2 + v3_v4_offset, 
+            v1 + v3_v4_offset
+        };
+    }
+
+    return .{
+        pos,
+        tri_x,
+        tri_y,
+        quad_xy
+    };
+}
+
+draw_handle :: (handle: PositionHandle2) {
+    pos := handle.pos;
 
     // x
     {
         color : Vector4 = .{ 1, 0, 0, 1 };
         
         draw_rect(
-            .{ pos.x + handle_length * .5, pos.y }, 
-            .{ handle_length, 1 }, 
+            .{ pos.x - .25 + handle_half_length, pos.y }, 
+            .{ handle_length + .5, 1 }, 
             color);
         
-        draw_tri(
-            .{ pos.x + handle_length, pos.y }, 
-            .{ handle_arrow_width, handle_arrow_height }, 
-            .{ 1, 0 }, 
-            color);
+        draw_tri_raw(handle.tri_x, color);
     }
     
     // y
@@ -32,20 +90,35 @@ draw_handle :: (handle: PositionHandle2) { // TODO direction parameter. for now 
         color : Vector4 = .{ 0, 1, 0, 1 };
 
         draw_rect(
-            .{ pos.x, pos.y + handle_length * .5 }, 
-            .{ 1, handle_length }, 
+            .{ pos.x, pos.y + .25 + handle_half_length }, 
+            .{ 1, handle_length - .5 }, 
             color);
-
-        draw_tri(
-            .{ pos.x, pos.y + handle_length }, 
-            .{ handle_arrow_width, handle_arrow_height }, 
-            .{ 0, 1 }, 
-            color);
+            
+        draw_tri_raw(handle.tri_y, color);
     }
+
+    // xy
+    draw_quad_raw(handle.quad_xy, .{ 0, 0, 1, .25 });
+}
+
+get_interaction_vector :: (handle: PositionHandle2) -> bool, Vector2 {
+
 }
 
 #scope_file
 
 handle_length :: 100;
 handle_arrow_height :: 20;
+
+handle_half_length :: handle_length * .5;
+handle_arrow_half_height :: handle_arrow_height * .5;
 handle_arrow_width :: handle_arrow_height * .75;
+handle_arrow_half_width :: handle_arrow_width * .5;
+
+rotate_dir_90_deg_cw :: (dir: Vector2) -> Vector2 {
+    return .{ dir.y, -dir.x };
+}
+
+rotate_dir_90_deg_ccw :: (dir: Vector2) -> Vector2 {
+    return .{ -dir.y, dir.x };
+}

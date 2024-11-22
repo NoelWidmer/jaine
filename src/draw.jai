@@ -14,17 +14,29 @@ draw_rect :: (world_pos: Vector2, size: Vector2, color: Vector4) {
         color);
 }
 
-draw_tri :: (origin: Vector2, size: Vector2, dir: Vector2, color: Vector4) {
-    screen_origin := world_to_screen_pos(origin);
-    cross_dir : Vector2 = .{ dir.y, -dir.x };
+draw_quad_raw :: (quad: Quad, color: Vector4) {
+    screen_v1 := world_to_screen_pos(quad.v1);
+    screen_v2 := world_to_screen_pos(quad.v2);
+    screen_v3 := world_to_screen_pos(quad.v3);
+    screen_v4 := world_to_screen_pos(quad.v4);
 
-    v1 := screen_origin + cross_dir * size.x * .5;
-    v2 := screen_origin + dir * size.y;
-    v3 := v1 - cross_dir * size.x;
-    
+    Simp.immediate_quad(
+        screen_v1, 
+        screen_v2, 
+        screen_v3, 
+        screen_v4,
+        color);
+}
+
+
+draw_tri_raw :: (triangle: Tri, color: Vector4) {
+    screen_v1 := world_to_screen_pos(triangle.v1);
+    screen_v2 := world_to_screen_pos(triangle.v2);
+    screen_v3 := world_to_screen_pos(triangle.v3);
+
     Simp.immediate_triangle(
-        .{ v1.x, v1.y, 0 }, 
-        .{ v2.x, v2.y, 0 },
-        .{ v3.x, v3.y, 0 }, 
+        .{ screen_v1.x, screen_v1.y, 0 }, 
+        .{ screen_v2.x, screen_v2.y, 0 },
+        .{ screen_v3.x, screen_v3.y, 0 }, 
         color, color, color);
 }
