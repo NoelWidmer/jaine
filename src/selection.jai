@@ -37,9 +37,9 @@ draw_selection_gizmo :: () {
     draw_gizmo(gizmo);
 }
 
-overlaps_gizmo :: () -> bool {
-    if selected == -1 return false;
-    return overlaps_asd(gizmo);
+get_selected_gizmo_mode :: () -> GizmoMode {
+    if selected == -1 return GizmoMode.None;
+    return get_gizmo_mode(gizmo);
 }
 
 #scope_file

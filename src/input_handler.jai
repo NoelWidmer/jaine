@@ -2,10 +2,10 @@ on_mouse_left :: (ev: Event) {
     if ev.key_pressed {
         is_left_mouse_pressed = true;
         left_drag_start_pos = pointer_screen_pos;
-        gizmo_mode = overlaps_gizmo();
+        gizmo_mode = get_selected_gizmo_mode();
     } else {
         is_left_mouse_pressed = false;
-        gizmo_mode = false;
+        gizmo_mode = GizmoMode.None;
 
         if is_left_drag {
             is_left_drag = false;
@@ -70,15 +70,21 @@ right_drag_start_pos : Vector2;
 
 min_drag_distance :: 10;
 
-gizmo_mode : bool;
+gizmo_mode : GizmoMode;
 
 drag_right :: () {
     move_camera(-pointer_delta);
 }
 
 drag_left :: () {
-    if gizmo_mode {
+    if gizmo_mode != GizmoMode.None {
         selected := get_selected();
-        selected.pos += pointer_delta;
+        pos := selected.pos;
+
+        if gizmo_mode == {
+            case GizmoMode.X; selected.pos = .{ pos.x + pointer_delta.x, pos.y };
+            case GizmoMode.Y; selected.pos = .{ pos.x, pos.y + pointer_delta.y };
+            case GizmoMode.XY; selected.pos += pointer_delta;
+        }        
     }
 }

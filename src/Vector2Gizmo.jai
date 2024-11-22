@@ -88,8 +88,18 @@ draw_gizmo :: (gizmo: Vector2Gizmo) {
     draw_quad_raw(gizmo.quad_xy, .{ 0, 0, 1, .25 });
 }
 
-overlaps_asd :: (gizmo: Vector2Gizmo) -> bool {
-    return is_inside_quad(pointer_world_pos, gizmo.quad_xy);
+GizmoMode :: enum u8 {
+  None;
+  X;
+  Y; 
+  XY;
+}
+
+get_gizmo_mode :: (gizmo: Vector2Gizmo) -> GizmoMode {
+    if is_inside_quad(pointer_world_pos, gizmo.quad_xy) then return GizmoMode.XY;
+    if is_inside_triangle(pointer_world_pos, gizmo.tri_x) then return GizmoMode.X;
+    if is_inside_triangle(pointer_world_pos, gizmo.tri_y) then return GizmoMode.Y;
+    return GizmoMode.None;
 }
 
 #scope_file
