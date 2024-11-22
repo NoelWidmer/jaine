@@ -32,6 +32,23 @@ is_inside_triangle :: (point: Vector2, tri: Tri) -> bool {
     return is_inside_side(point, tri.v3, tri.v1);
 }
 
+rotate_around_pivot :: (point: Vector2, pivot: Vector2, angle: float) -> Vector2 {
+    rotated := rotate_around_origin(point - pivot, angle);
+    return rotated + pivot;
+}
+
+rotate_around_origin :: (point: Vector2, angle: float) -> Vector2 {
+    angle_rad := angle * PI / 180;
+
+    s := sin(angle_rad);
+    c := cos(angle_rad);
+
+    return .{ 
+        point.x * c - point.y * s, 
+        point.x * s + point.y * c 
+    };
+}
+
 #scope_file
 
 is_inside_side :: (point: Vector2, v1: Vector2, v2: Vector2) -> bool {

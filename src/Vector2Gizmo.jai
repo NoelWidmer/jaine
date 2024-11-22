@@ -7,9 +7,12 @@ Vector2Gizmo :: struct {
 
 GizmoMode :: enum u8 {
   None;
+
   X;
   Y; 
   XY;
+
+  Theta;
 }
 
 new_vector2_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
@@ -102,12 +105,13 @@ get_gizmo_mode :: (gizmo: Vector2Gizmo) -> GizmoMode {
     return GizmoMode.None;
 }
 
+gizmo_length :: 100;
+gizmo_arrow_height :: gizmo_length * .2;
+
 #scope_file
 
-gizmo_length :: 100;
 gizmo_half_length :: gizmo_length * .5;
 
-gizmo_arrow_height :: gizmo_length * .2;
 gizmo_arrow_half_height :: gizmo_arrow_height * .5;
 
 gizmo_arrow_width :: gizmo_arrow_height * .75;

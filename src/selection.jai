@@ -41,13 +41,11 @@ draw_selection_gizmo :: () {
             gizmo.vector2 = g;
             draw_vector2_gizmo(g);
         case Tool.Rotate;
-            g := new_theta_gizmo(entity.pos);
+            g := ThetaGizmo.{ entity.pos };
             gizmo_kind = GizmoKind.Theta;
             gizmo.theta = g;
             draw_theta_gizmo(g);
     }
-
-    print("Gizmo: %\n", gizmo_kind);
 }
 
 get_selected_gizmo_mode :: () -> GizmoMode {
