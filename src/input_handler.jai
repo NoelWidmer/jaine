@@ -30,7 +30,11 @@ on_mouse_right :: (ev: Event) {
     }
 }
 
-maybe_drag :: () {
+switch_tool :: (ev: Event) {
+    if !ev.key_pressed then switch_tool();
+}
+
+update_input :: () {
     if is_right_mouse_pressed {
         if is_right_drag {
             drag_right();

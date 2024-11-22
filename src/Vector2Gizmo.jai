@@ -5,7 +5,14 @@ Vector2Gizmo :: struct {
     quad_xy: Quad;
 }
 
-new_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
+GizmoMode :: enum u8 {
+  None;
+  X;
+  Y; 
+  XY;
+}
+
+new_vector2_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     tri_x : Tri = ---;
@@ -57,7 +64,7 @@ new_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
     };
 }
 
-draw_gizmo :: (gizmo: Vector2Gizmo) {
+draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     pos := gizmo.pos;
 
     // x
@@ -86,13 +93,6 @@ draw_gizmo :: (gizmo: Vector2Gizmo) {
 
     // xy
     draw_quad_raw(gizmo.quad_xy, .{ 0, 0, 1, .25 });
-}
-
-GizmoMode :: enum u8 {
-  None;
-  X;
-  Y; 
-  XY;
 }
 
 get_gizmo_mode :: (gizmo: Vector2Gizmo) -> GizmoMode {

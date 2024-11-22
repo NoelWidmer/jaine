@@ -14,7 +14,6 @@ try_select_entity :: () -> bool {
                 selected = -1;
             } else {
                 selected = it_index;
-                invalidate_gizmo();
             }
 
             return true;
@@ -33,21 +32,48 @@ delete_selected_entity :: (ev: Event) {
 draw_selection_gizmo :: () {
     if selected == -1 return;
 
-    invalidate_gizmo();
-    draw_gizmo(gizmo);
+    entity := entities[selected];    
+    
+    if get_selected_tool() == {
+        case Tool.Move;
+            g := new_vector2_gizmo(entity.pos, .{ 1, 0 });
+            gizmo_kind = GizmoKind.Vector2;
+            gizmo.vector2 = g;
+            draw_vector2_gizmo(g);
+        case Tool.Rotate;
+            g := new_theta_gizmo(entity.pos);
+            gizmo_kind = GizmoKind.Theta;
+            gizmo.theta = g;
+            draw_theta_gizmo(g);
+    }
+
+    print("Gizmo: %\n", gizmo_kind);
 }
 
 get_selected_gizmo_mode :: () -> GizmoMode {
     if selected == -1 return GizmoMode.None;
-    return get_gizmo_mode(gizmo);
+    
+    if gizmo_kind == {
+        case GizmoKind.Vector2; return get_gizmo_mode(gizmo.vector2);
+        case GizmoKind.Theta; return get_gizmo_mode(gizmo.theta);
+    }
+
+    return GizmoMode.None;
 }
 
 #scope_file
 
 selected : s64 = -1;
-gizmo : Vector2Gizmo;
 
-invalidate_gizmo :: () {
-    entity := entities[selected];
-    gizmo = new_gizmo(entity.pos, .{ 1, 0 });
+gizmo_kind : GizmoKind;
+gizmo : Gizmo;
+
+GizmoKind :: enum u8 {
+  Vector2;
+  Theta;
+}
+
+Gizmo :: union { 
+  vector2: Vector2Gizmo; 
+  theta: ThetaGizmo;
 }

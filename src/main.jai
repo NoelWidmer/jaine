@@ -15,6 +15,7 @@
 #import "SDL";
 
 #load "Vector2Gizmo.jai";
+#load "ThetaGizmo.jai";
 #load "draw.jai";
 #load "camera.jai";
 #load "window.jai";
@@ -23,6 +24,7 @@
 #load "selection.jai";
 #load "input_handler.jai";
 #load "math.jai";
+#load "Tool.jai";
 
 main :: () {   
     { // aquire sdl version.
@@ -37,8 +39,8 @@ main :: () {
 
     while !quit { // main game loop
         reset_temporary_storage();    
-        pre_render_window();
-        maybe_drag();
+        update_window();
+        update_input();
         invalidate_viewport();
 
         render();

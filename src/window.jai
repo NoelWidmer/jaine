@@ -14,7 +14,7 @@ create_window :: () {
     Simp.set_render_target(window);
 }
 
-pre_render_window :: () {
+update_window :: () {
     update_window_events();
 
     for get_window_resizes() {
@@ -46,6 +46,8 @@ pre_render_window :: () {
                     on_mouse_left(it);
                 } else if key == .MOUSE_BUTTON_RIGHT {
                     on_mouse_right(it);
+                } else if key == xx #char "T" {
+                    switch_tool(it);
                 } else if key == .DELETE {
                     delete_selected_entity(it);
                 }
