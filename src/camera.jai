@@ -6,7 +6,7 @@ screen_to_world_pos :: (screen_pos: Vector2) -> Vector2 {
     return screen_pos + viewport_bottom_left;
 }
 
-move_camera :: (delta_pos: Vector2) {
+drag_camera :: (delta_pos: Vector2) {
     cam_pos += delta_pos;
 }
 

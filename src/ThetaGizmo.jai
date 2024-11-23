@@ -1,5 +1,13 @@
 ThetaGizmo :: struct {
     pos: Vector2;
+    grabbed: bool;
+}
+
+new_theta_gizmo :: (gizmo: *ThetaGizmo, pos: Vector2) {
+    <<gizmo = .{ 
+        pos, 
+        gizmo.grabbed 
+    };
 }
 
 draw_theta_gizmo :: (gizmo: ThetaGizmo) {
@@ -31,11 +39,46 @@ draw_theta_gizmo :: (gizmo: ThetaGizmo) {
     draw_segment(last_inner, last_outer, first_inner, first_outer);
 }
 
-get_gizmo_mode :: (gizmo: ThetaGizmo) -> GizmoMode {
+try_begin_gizmo_grab :: (gizmo: *ThetaGizmo) -> bool {
     dist := distance(pointer_world_pos, gizmo.pos);
-    if dist > outer_radius then return GizmoMode.None;
-    if dist > gizmo_length then return GizmoMode.Theta;
-    return GizmoMode.None;
+
+    if dist > outer_radius return false;
+
+    if dist > gizmo_length {
+        gizmo.grabbed = true;
+        return true;
+    }
+
+    return false;
+}
+
+try_drag_gizmo :: (gizmo: *ThetaGizmo) {
+    if !gizmo.grabbed return;
+    if last_pointer_screen_pos == pointer_screen_pos return;
+
+    selected := get_selected();
+    selected_screen_pos := world_to_screen_pos(selected.pos);
+
+    from := normalize(last_pointer_screen_pos - selected_screen_pos);
+    to := normalize(pointer_screen_pos - selected_screen_pos);
+    theta := angle(from, to);
+
+    if theta == 0 return;
+
+    up := rotate_dir_90_deg_ccw(from);
+    up_dot := dot(up, to);
+
+    signed_theta : float;
+
+    if up_dot > 0 
+        then signed_theta = theta;
+        else signed_theta = -theta;
+
+    selected.theta += signed_theta;
+}
+
+release_gizmo :: (gizmo: *ThetaGizmo) {
+    gizmo.grabbed = false;
 }
 
 #scope_file

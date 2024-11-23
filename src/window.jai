@@ -47,9 +47,9 @@ update_window :: () {
                 } else if key == .MOUSE_BUTTON_RIGHT {
                     on_mouse_right(it);
                 } else if key == xx #char "T" {
-                    switch_tool(it);
+                    on_tool(it);
                 } else if key == .DELETE {
-                    delete_selected_entity(it);
+                    on_delete(it);
                 }
             }
         }            

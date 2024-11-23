@@ -3,19 +3,17 @@ Vector2Gizmo :: struct {
     tri_x: Tri;
     tri_y: Tri;
     quad_xy: Quad;
+    mode: Vector2GizmoMode;
 }
 
-GizmoMode :: enum u8 {
-  None;
-
-  X;
-  Y; 
-  XY;
-
-  Theta;
+Vector2GizmoMode :: enum u8 {
+    None;
+    X;
+    Y; 
+    XY;
 }
 
-new_vector2_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
+new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     tri_x : Tri = ---;
@@ -59,11 +57,12 @@ new_vector2_gizmo :: (pos: Vector2, dir_x: Vector2) -> Vector2Gizmo {
         };
     }
 
-    return .{
+    <<gizmo = .{
         pos,
         tri_x,
         tri_y,
-        quad_xy
+        quad_xy, 
+        gizmo.mode
     };
 }
 
@@ -98,11 +97,40 @@ draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     draw_quad_raw(gizmo.quad_xy, .{ 0, 0, 1, .25 });
 }
 
-get_gizmo_mode :: (gizmo: Vector2Gizmo) -> GizmoMode {
-    if is_inside_quad(pointer_world_pos, gizmo.quad_xy) then return GizmoMode.XY;
-    if is_inside_triangle(pointer_world_pos, gizmo.tri_x) then return GizmoMode.X;
-    if is_inside_triangle(pointer_world_pos, gizmo.tri_y) then return GizmoMode.Y;
-    return GizmoMode.None;
+try_begin_gizmo_grab :: (gizmo: *Vector2Gizmo) -> bool {
+    if is_inside_quad(pointer_world_pos, gizmo.quad_xy) {
+        gizmo.mode = Vector2GizmoMode.XY;
+        return true;
+    }
+
+    if is_inside_triangle(pointer_world_pos, gizmo.tri_x) {
+        gizmo.mode = Vector2GizmoMode.X;
+        return true;
+    }
+
+    if is_inside_triangle(pointer_world_pos, gizmo.tri_y) {
+        gizmo.mode = Vector2GizmoMode.Y;
+        return true;
+    }
+
+    return false;
+}
+
+try_drag_gizmo :: (gizmo: Vector2Gizmo) {
+    if gizmo.mode == Vector2GizmoMode.None return;
+
+    selected := get_selected();
+    world_pos := selected.pos;
+
+    if gizmo.mode == {
+        case Vector2GizmoMode.X; selected.pos = .{ world_pos.x + pointer_delta.x, world_pos.y };
+        case Vector2GizmoMode.Y; selected.pos = .{ world_pos.x, world_pos.y + pointer_delta.y };
+        case Vector2GizmoMode.XY; selected.pos += pointer_delta;
+    }
+}
+
+release_gizmo :: (gizmo: *Vector2Gizmo) {
+    gizmo.mode = Vector2GizmoMode.None;
 }
 
 gizmo_length :: 100;

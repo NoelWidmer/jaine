@@ -23,8 +23,8 @@ try_select_entity :: () -> bool {
     return false;
 }
 
-delete_selected_entity :: (ev: Event) {
-    if ev.key_pressed || selected == -1 then return;
+delete_selected :: () {
+    if selected == -1 return;
     despawn_entity(selected);
     selected = -1;
 }
@@ -36,27 +36,51 @@ draw_selection_gizmo :: () {
     
     if get_selected_tool() == {
         case Tool.Move;
-            g := new_vector2_gizmo(entity.pos, .{ 1, 0 });
-            gizmo_kind = GizmoKind.Vector2;
-            gizmo.vector2 = g;
-            draw_vector2_gizmo(g);
+            if gizmo_kind != GizmoKind.Vector2 {
+                gizmo.vector2 = .{};
+                gizmo_kind = GizmoKind.Vector2;
+            }
+
+            new_vector2_gizmo(*gizmo.vector2, entity.pos, .{ 1, 0 });
+            draw_vector2_gizmo(gizmo.vector2);
         case Tool.Rotate;
-            g := ThetaGizmo.{ entity.pos };
-            gizmo_kind = GizmoKind.Theta;
-            gizmo.theta = g;
-            draw_theta_gizmo(g);
+            if gizmo_kind != GizmoKind.Theta {
+                gizmo.theta = .{};
+                gizmo_kind = GizmoKind.Theta;
+            }
+
+            new_theta_gizmo(*gizmo.theta, entity.pos);
+            draw_theta_gizmo(*gizmo.theta);
     }
 }
 
-get_selected_gizmo_mode :: () -> GizmoMode {
-    if selected == -1 return GizmoMode.None;
+try_grab_selected_gizmo :: () -> bool {
+    if selected == -1 return false;
     
     if gizmo_kind == {
-        case GizmoKind.Vector2; return get_gizmo_mode(gizmo.vector2);
-        case GizmoKind.Theta; return get_gizmo_mode(gizmo.theta);
+        case GizmoKind.Vector2; return try_begin_gizmo_grab(*gizmo.vector2);
+        case GizmoKind.Theta; return try_begin_gizmo_grab(*gizmo.theta);
     }
+    
+    return false;
+}
 
-    return GizmoMode.None;
+try_drag_selected_gizmo :: () {
+    if selected == -1 return;
+    
+    if gizmo_kind == {
+        case GizmoKind.Vector2; try_drag_gizmo(gizmo.vector2);
+        case GizmoKind.Theta; try_drag_gizmo(*gizmo.theta);
+    }
+}
+
+release_selected_gizmo :: () {
+    if selected == -1 return;
+
+    if gizmo_kind == {
+        case GizmoKind.Vector2; release_gizmo(*gizmo.vector2);
+        case GizmoKind.Theta; release_gizmo(*gizmo.theta);
+    }
 }
 
 #scope_file
