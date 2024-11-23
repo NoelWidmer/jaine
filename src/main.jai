@@ -1,18 +1,7 @@
 #import "Basic"; //()(MEMORY_DEBUGGER=true);
-#import "Hash_Table";
 #import "Math";
-#import "Random";
-#import "Sound_Player";
-#import "Wav_File";
-#import "stb_vorbis";
 #import "Window_Creation";
-#import "Windows";
-#import "File";
-#import "String";
-#import "Thread";
 #import "Input";
-#import "System";
-#import "SDL";
 
 #load "Vector2Gizmo.jai";
 #load "ThetaGizmo.jai";
@@ -27,13 +16,7 @@
 #load "Tool.jai";
 #load "gizmo.jai";
 
-main :: () {   
-    { // aquire sdl version.
-        sdl_version : SDL_version;
-        SDL_GetVersion(*sdl_version);
-        print("Using SDL %.%.%\n", sdl_version.major, sdl_version.minor, sdl_version.patch);
-    }
-
+main :: () {
     create_window();
 
     time_prev = seconds_since_init();
