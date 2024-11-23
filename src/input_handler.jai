@@ -34,6 +34,10 @@ on_tool :: (ev: Event) {
     if !ev.key_pressed then switch_tool();
 }
 
+on_global_local :: (ev: Event) {
+    if !ev.key_pressed then switch_global_local();
+}
+
 on_delete :: (ev: Event) {
     if !ev.key_pressed delete_selected();    
 }

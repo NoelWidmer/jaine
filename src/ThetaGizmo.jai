@@ -1,17 +1,25 @@
 ThetaGizmo :: struct {
     pos: Vector2;
+    right: Vector2;
+    up: Vector2;
     grabbed: bool;
 }
 
-new_theta_gizmo :: (gizmo: *ThetaGizmo, pos: Vector2) {
+new_theta_gizmo :: (gizmo: *ThetaGizmo, pos: Vector2, right: Vector2) {
+    up := rotate_dir_90_deg_ccw(right);
+
     <<gizmo = .{ 
         pos, 
+        right,
+        up,
         gizmo.grabbed 
     };
 }
 
 draw_theta_gizmo :: (gizmo: ThetaGizmo) {
     center := gizmo.pos;
+
+    draw_axis(center, gizmo.right, gizmo.up);
 
     first_inner := Vector2.{ center.x, center.y + gizmo_length };
     first_outer := Vector2.{ center.x, first_inner.y + gizmo_interaction_size };

@@ -64,6 +64,12 @@ angle :: (u: Vector2, v: Vector2) -> float {
     return acos(cosTheta) * rad2deg;
 }
 
+project :: (v: Vector2, dir: Vector2) -> Vector2 {
+    v_dot_dir := dot(v, dir);
+    dir_dot_dir := dot(dir, dir);
+    return (v_dot_dir / dir_dot_dir) * dir;
+}
+
 deg2rad :: PI / 180;
 rad2deg :: 180 / PI;
 

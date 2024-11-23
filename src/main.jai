@@ -25,6 +25,7 @@
 #load "input_handler.jai";
 #load "math.jai";
 #load "Tool.jai";
+#load "gizmo.jai";
 
 main :: () {   
     { // aquire sdl version.

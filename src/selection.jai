@@ -7,9 +7,9 @@ get_selected :: () -> *Entity {
 
 try_select_entity :: () -> bool {
     for entities {
-        rect := get_entity_rect(it);
+        quad := get_entity_quad(it);
 
-        if is_inside(pointer_world_pos.x, pointer_world_pos.y, rect) {
+        if is_inside_quad(pointer_world_pos, quad) {
             if selected == it_index {
                 selected = -1;
             } else {
@@ -32,7 +32,11 @@ delete_selected :: () {
 draw_selection_gizmo :: () {
     if selected == -1 return;
 
-    entity := entities[selected];    
+    entity := entities[selected];   
+
+    right := ifx is_global() 
+        then Vector2.{ 1, 0 }
+        else get_entity_right(entity); 
     
     if get_selected_tool() == {
         case Tool.Move;
@@ -41,7 +45,7 @@ draw_selection_gizmo :: () {
                 gizmo_kind = GizmoKind.Vector2;
             }
 
-            new_vector2_gizmo(*gizmo.vector2, entity.pos, .{ 1, 0 });
+            new_vector2_gizmo(*gizmo.vector2, entity.pos, right);
             draw_vector2_gizmo(gizmo.vector2);
         case Tool.Rotate;
             if gizmo_kind != GizmoKind.Theta {
@@ -49,9 +53,18 @@ draw_selection_gizmo :: () {
                 gizmo_kind = GizmoKind.Theta;
             }
 
-            new_theta_gizmo(*gizmo.theta, entity.pos);
+            new_theta_gizmo(*gizmo.theta, entity.pos, right);
             draw_theta_gizmo(*gizmo.theta);
     }
+}
+
+switch_global_local :: () {
+    is_global_ = !is_global_;
+    print("%\n", is_global_);
+}
+
+is_global :: () -> bool {
+    return is_global_;
 }
 
 try_grab_selected_gizmo :: () -> bool {
@@ -86,6 +99,8 @@ release_selected_gizmo :: () {
 #scope_file
 
 selected : s64 = -1;
+
+is_global_ := true;
 
 gizmo_kind : GizmoKind;
 gizmo : Gizmo;
