@@ -60,7 +60,6 @@ draw_selection_gizmo :: () {
 
 switch_global_local :: () {
     is_global_ = !is_global_;
-    print("%\n", is_global_);
 }
 
 is_global :: () -> bool {

@@ -1,8 +1,8 @@
 last_pointer_screen_pos : Vector2;
 last_pointer_world_pos : Vector2;
 
-pointer_world_pos : Vector2;
 pointer_screen_pos : Vector2;
+pointer_world_pos : Vector2;
 
 pointer_delta : Vector2;
 

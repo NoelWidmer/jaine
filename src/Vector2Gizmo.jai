@@ -78,8 +78,8 @@ draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     // x
     {
         color := ifx gizmo.mode == Vector2GizmoMode.X 
-            then Vector4.{ 1, gizmo_light, gizmo_light, 1 }
-            else Vector4.{ 1, 0, 0, 1 };
+            then color_gizmo_interactive
+            else color_gizmo_red;
         
         draw_tri_raw(gizmo.tri_x, color);
     }
@@ -87,8 +87,8 @@ draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     // y
     {
         color := ifx gizmo.mode == Vector2GizmoMode.Y
-            then Vector4.{ gizmo_light, 1, gizmo_light, 1 } 
-            else Vector4.{ 0, 1, 0, 1 };
+            then color_gizmo_interactive
+            else color_gizmo_green;
             
         draw_tri_raw(gizmo.tri_y, color);
     }
@@ -96,8 +96,8 @@ draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     // xy
     {
         color := ifx gizmo.mode == Vector2GizmoMode.XY
-            then Vector4.{ gizmo_light, gizmo_light, 1, 1 }
-            else Vector4.{ 0, 0, 1, 1 };
+            then color_gizmo_interactive
+            else color_gizmo_blue;
 
         draw_quad_raw(gizmo.quad_xy, color);
     }
@@ -140,8 +140,6 @@ release_gizmo :: (gizmo: *Vector2Gizmo) {
 }
 
 #scope_file
-
-gizmo_interaction_half_size :: gizmo_interaction_size * .5;
 
 gizmo_arrow_width :: gizmo_interaction_size * .75;
 gizmo_arrow_half_width :: gizmo_arrow_width * .5;

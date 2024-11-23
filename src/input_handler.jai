@@ -2,6 +2,7 @@ on_mouse_left :: (ev: Event) {
     if ev.key_pressed {
         is_left_mouse_pressed = true;
         left_pressed_screen_pos = pointer_screen_pos;
+        left_pressed_world_pos = screen_to_world_pos(left_pressed_screen_pos);
         try_grab_selected_gizmo();
     } else {
         is_left_mouse_pressed = false;
@@ -19,6 +20,7 @@ on_mouse_right :: (ev: Event) {
     if ev.key_pressed {
         is_right_mouse_pressed = true;
         right_pressed_screen_pos = pointer_screen_pos;
+        right_pressed_world_pos = screen_to_world_pos(right_pressed_screen_pos);
     } else {
         is_right_mouse_pressed = false;
 
@@ -70,15 +72,18 @@ update_input :: () {
     }
 }
 
+left_pressed_world_pos : Vector2;
+
 #scope_file
 
+left_pressed_screen_pos : Vector2;
 is_left_mouse_pressed : bool;
 is_left_grab : bool;
-left_pressed_screen_pos : Vector2;
 
+right_pressed_screen_pos : Vector2;
+right_pressed_world_pos : Vector2;
 is_right_mouse_pressed : bool;
 is_right_grab : bool;
-right_pressed_screen_pos : Vector2;
 
 min_drag_distance :: 10;
 
