@@ -15,19 +15,30 @@
 #load "math.jai";
 #load "Tool.jai";
 #load "gizmo.jai";
+#load "res.jai";
 
 main :: () {
     create_window();
+    load_res();
 
     time_prev = seconds_since_init();
 
-    while !quit { // main game loop
+    while !quit {
         reset_temporary_storage();    
         update_window();
         update_input();
         invalidate_viewport();
 
-        render();
+        // render
+        {
+            { // clear
+                background_color :: Vector4.{ .1, .1, .2, 1};
+                Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
+            }
+
+            draw_entities();    
+            draw_selection_gizmo();
+        }
 
         Simp.swap_buffers(window);
         
@@ -53,15 +64,3 @@ quit : bool;
 frame_count : int;
 time_prev : float64;
 time_delta : float;
-
-render :: () {
-    { // clear
-        background_color :: Vector4.{ .1, .1, .2, 1};
-        Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
-    }
-
-    Simp.set_shader_for_color();
-
-    draw_entities();
-    draw_selection_gizmo();
-}

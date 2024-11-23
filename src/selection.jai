@@ -31,8 +31,9 @@ delete_selected :: () {
 
 draw_selection_gizmo :: () {
     if selected == -1 return;
-
-    entity := entities[selected];   
+    entity := entities[selected];
+    
+    Simp.set_shader_for_color();   
 
     right := ifx is_global() 
         then Vector2.{ 1, 0 }

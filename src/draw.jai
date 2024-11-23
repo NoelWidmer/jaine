@@ -15,17 +15,25 @@ draw_rect :: (world_pos: Vector2, size: Vector2, color: Vector4) {
 }
 
 draw_quad_raw :: (quad: Quad, color: Vector4) {
-    screen_v1 := world_to_screen_pos(quad.v1);
-    screen_v2 := world_to_screen_pos(quad.v2);
-    screen_v3 := world_to_screen_pos(quad.v3);
-    screen_v4 := world_to_screen_pos(quad.v4);
-
     Simp.immediate_quad(
-        screen_v1, 
-        screen_v2, 
-        screen_v3, 
-        screen_v4,
+        world_to_screen_pos(quad.v1), 
+        world_to_screen_pos(quad.v2), 
+        world_to_screen_pos(quad.v3), 
+        world_to_screen_pos(quad.v4),
         color);
+}
+
+draw_quad_uv_raw :: (quad: Quad, uv: Quad, color: Vector4) {
+    Simp.immediate_quad(
+        world_to_screen_pos(quad.v1), 
+        world_to_screen_pos(quad.v2), 
+        world_to_screen_pos(quad.v3), 
+        world_to_screen_pos(quad.v4),
+        color,
+        uv.v1,
+        uv.v2,
+        uv.v3,
+        uv.v4);
 }
 
 draw_tri_raw :: (triangle: Tri, color: Vector4) {
@@ -61,7 +69,7 @@ draw_line :: (from: Vector2, to: Vector2, thickness: float, color: Vector4) {
 
 draw_partial_circle :: (center: Vector2, start_dir: Vector2, radius: float, degrees: float, segments: u8, thickness: float, color: Vector4) {
         if segments == 0 then segments = 1;
-        
+
         degrees_per_segment := degrees / segments;
 
         last_inner := center + start_dir * radius;
