@@ -1,3 +1,5 @@
+gizmo_light :: .5;
+
 Vector2Gizmo :: struct {
     pos: Vector2;
     tri_x: Tri;
@@ -71,7 +73,9 @@ draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
 
     // x
     {
-        color : Vector4 = .{ 1, 0, 0, 1 };
+        color := ifx gizmo.mode == Vector2GizmoMode.X 
+            then Vector4.{ 1, gizmo_light, gizmo_light, 1 }
+            else Vector4.{ 1, 0, 0, 1 };
         
         draw_rect(
             .{ pos.x - .25 + gizmo_half_length, pos.y }, 
@@ -83,7 +87,9 @@ draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     
     // y
     {
-        color : Vector4 = .{ 0, 1, 0, 1 };
+        color := ifx gizmo.mode == Vector2GizmoMode.Y
+            then Vector4.{ gizmo_light, 1, gizmo_light, 1 } 
+            else Vector4.{ 0, 1, 0, 1 };
 
         draw_rect(
             .{ pos.x, pos.y + .25 + gizmo_half_length }, 
@@ -94,7 +100,13 @@ draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     }
 
     // xy
-    draw_quad_raw(gizmo.quad_xy, .{ 0, 0, 1, .25 });
+    {
+        color := ifx gizmo.mode == Vector2GizmoMode.XY
+            then Vector4.{ gizmo_light, gizmo_light, 1, 1 }
+            else Vector4.{ 0, 0, 1, 1 };
+
+        draw_quad_raw(gizmo.quad_xy, color);
+    }
 }
 
 try_begin_gizmo_grab :: (gizmo: *Vector2Gizmo) -> bool {

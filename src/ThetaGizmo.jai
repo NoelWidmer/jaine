@@ -22,6 +22,10 @@ draw_theta_gizmo :: (gizmo: ThetaGizmo) {
     segments :: 48;
     degrees_per_segment :: 360.0 / segments;
     original_dir :: Vector2.{ 0, 1 };
+    
+    color := ifx gizmo.grabbed 
+        then Vector4.{ gizmo_light, gizmo_light, 1, 1 }
+        else Vector4.{ 0, 0, 1, 1 };
 
     for 1..segments - 1 {
         angle := degrees_per_segment * it;
@@ -30,13 +34,13 @@ draw_theta_gizmo :: (gizmo: ThetaGizmo) {
         inner := center + dir * gizmo_length;
         outer := inner + dir * gizmo_interaction_size;
 
-        draw_segment(last_inner, last_outer, inner, outer);
+        draw_segment(last_inner, last_outer, inner, outer, color);
 
         last_inner = inner;
         last_outer = outer;
     }
 
-    draw_segment(last_inner, last_outer, first_inner, first_outer);
+    draw_segment(last_inner, last_outer, first_inner, first_outer, color);
 }
 
 try_begin_gizmo_grab :: (gizmo: *ThetaGizmo) -> bool {
@@ -85,8 +89,7 @@ release_gizmo :: (gizmo: *ThetaGizmo) {
 
 outer_radius :: gizmo_length + gizmo_interaction_size;
 
-draw_segment :: (inner_a: Vector2, outer_a: Vector2, inner_b: Vector2, outer_b: Vector2) {
-    color :: Vector4.{ 0, 0, 1, 1 };
+draw_segment :: (inner_a: Vector2, outer_a: Vector2, inner_b: Vector2, outer_b: Vector2, color: Vector4) {
     draw_tri_raw(.{ inner_a, inner_b, outer_a }, color);
     draw_tri_raw(.{ inner_b, outer_b, outer_a }, color);
 }
