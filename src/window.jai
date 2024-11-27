@@ -5,7 +5,7 @@ create_window :: () {
     window_height : s32 = 1080 / 2;
 
     window = create_window(
-        window_name = "Lab", 
+        window_name = "Jaine", 
         width = window_width, 
         height = window_height/*, 
         background_color_rgb = .[background_color.x, background_color.y, background_color.z]*/);
