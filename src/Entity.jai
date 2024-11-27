@@ -8,13 +8,13 @@ Entity :: struct {
 }
 
 get_entity_size :: () -> Vector2 {
-    return .{ xx strawberry.width, xx strawberry.height };
+    return .{ xx strawberry.width * 2., xx strawberry.height * 2. };
 }
 
 get_entity_up :: (entity: Entity) -> Vector2 {
     global_up :: Vector2.{ 0, 1 };
     if entity.theta == 0 return global_up;
-    return rotate(global_up, entity.theta);
+    return rotate_by_deg(global_up, entity.theta);
 }
 
 get_entity_right :: (entity: Entity) -> Vector2 {

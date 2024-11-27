@@ -19,11 +19,11 @@ new_theta_gizmo :: (gizmo: *ThetaGizmo, pos: Vector2, right: Vector2) {
 draw_theta_gizmo :: (gizmo: ThetaGizmo) {
     center := gizmo.pos;
 
-    // try cull
+    /*// try cull
     {
-        aabb := get_rect(pos.x - right * .5, pos.y - up * .5, outer_radius, outer_radius);
+        aabb := get_rect(center.x - right * .5, center.y - up * .5, outer_radius, outer_radius);
         // TODO: check if can be culled, then return
-    }
+    }*/
 
     if gizmo.grabbed {
         center_to_grab_dir := normalize(left_pressed_world_pos - center);

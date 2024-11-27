@@ -71,14 +71,14 @@ new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
 draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     pos := gizmo.pos;
 
-    // try cull
+    /*// try cull
     {
-        x := pos.x - right * gizmo_arrow_half_width;
-        y := pos.y - up * gizmo_arrow_half_width
+        x := pos - gizmo.right * gizmo_arrow_half_width;
+        y := pos - gizmo.up * gizmo_arrow_half_width;
         size := gizmo_length + gizmo_arrow_height;
         aabb := get_rect(x, y, size, size);
         // TODO: check if can be culled, then return
-    }
+    }*/
 
     draw_axis(pos, gizmo.right, gizmo.up);
 

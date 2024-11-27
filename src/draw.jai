@@ -60,9 +60,12 @@ draw_vector :: (from: Vector2, v: Vector2, thickness: float, color: Vector4) {
     right := rotate_dir_90_deg_cw(dir);
     half_right := right * half_thickness;
 
+    v1 := from - half_right;
+    v2 := from + half_right;
+
     draw_quad_raw(.{ 
-        from - half_right, 
-        from + half_right, 
+        v1, 
+        v2, 
         v2 + v, 
         v1 + v 
     }, color);
@@ -78,7 +81,7 @@ draw_partial_circle_outline :: (center: Vector2, start_dir: Vector2, radius: flo
 
         for 1..segments {
             angle := degrees_per_segment * it;
-            dir := rotate(start_dir, -angle);
+            dir := rotate_by_deg(start_dir, -angle);
 
             inner := center + dir * radius;
             outer := inner + dir * thickness;

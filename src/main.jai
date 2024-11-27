@@ -13,7 +13,7 @@
 #load "selection.jai";
 #load "input_handler.jai";
 #load "math.jai";
-#load "Tool.jai";
+#load "tool.jai";
 #load "gizmo.jai";
 #load "res.jai";
 
