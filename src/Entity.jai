@@ -13,10 +13,13 @@ get_entity_size :: () -> Vector2 {
 
 get_entity_up :: (entity: Entity) -> Vector2 {
     global_up :: Vector2.{ 0, 1 };
-    return rotate_around_origin(global_up, entity.theta);
+    if entity.theta == 0 return global_up;
+    return rotate(global_up, entity.theta);
 }
 
 get_entity_right :: (entity: Entity) -> Vector2 {
+    global_right :: Vector2.{ 1, 0 };
+    if entity.theta == 0 return global_right;
     entity_up := get_entity_up(entity);
     return rotate_dir_90_deg_cw(entity_up);
 }

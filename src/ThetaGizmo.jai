@@ -19,6 +19,12 @@ new_theta_gizmo :: (gizmo: *ThetaGizmo, pos: Vector2, right: Vector2) {
 draw_theta_gizmo :: (gizmo: ThetaGizmo) {
     center := gizmo.pos;
 
+    // try cull
+    {
+        aabb := get_rect(pos.x - right * .5, pos.y - up * .5, outer_radius, outer_radius);
+        // TODO: check if can be culled, then return
+    }
+
     if gizmo.grabbed {
         center_to_grab_dir := normalize(left_pressed_world_pos - center);
 
@@ -29,7 +35,7 @@ draw_theta_gizmo :: (gizmo: ThetaGizmo) {
             degrees := angle(center_to_grab_dir, center_to_pointer_dir);
             if dot(left, center_to_pointer_dir) > 0 then degrees = -degrees;
             segments := cast(u8) (abs(degrees) / 7);
-            draw_partial_circle(center, center_to_grab_dir, inner_radius, degrees, segments, 1, color_gizmo_interactive);
+            draw_partial_circle_outline(center, center_to_grab_dir, inner_radius, degrees, segments, 1, color_gizmo_interactive);
         }
 
         // to grab point
@@ -38,7 +44,7 @@ draw_theta_gizmo :: (gizmo: ThetaGizmo) {
         // to pointer
         draw_line(center, pointer_world_pos, 1, color_gizmo_interactive);
     } else {
-        draw_partial_circle(center, gizmo.up, inner_radius, 90, 12, gizmo_interaction_half_size, color_gizmo_blue);
+        draw_partial_circle_outline(center, gizmo.up, inner_radius, 90, 12, gizmo_interaction_half_size, color_gizmo_blue);
     }
 
     draw_axis(center, gizmo.right, gizmo.up);

@@ -27,7 +27,7 @@ main :: () {
         reset_temporary_storage();    
         update_window();
         update_input();
-        invalidate_viewport();
+        invalidate_viewport_world_pos();
 
         // render
         {

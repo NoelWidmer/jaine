@@ -32,20 +32,20 @@ is_inside_triangle :: (point: Vector2, tri: Tri) -> bool {
     return is_inside_side(point, tri.v3, tri.v1);
 }
 
-rotate_around_pivot :: (point: Vector2, pivot: Vector2, angle: float) -> Vector2 {
-    rotated := rotate_around_origin(point - pivot, angle);
+rotate_around_pivot :: (v: Vector2, pivot: Vector2, angle: float) -> Vector2 {
+    rotated := rotate(v - pivot, angle);
     return rotated + pivot;
 }
 
-rotate_around_origin :: (point: Vector2, angle: float) -> Vector2 {
+rotate :: (v: Vector2, angle: float) -> Vector2 {
     angle_rad := angle * deg2rad;
 
     s := sin(angle_rad);
     c := cos(angle_rad);
 
     return .{ 
-        point.x * c - point.y * s, 
-        point.x * s + point.y * c 
+        v.x * c - v.y * s, 
+        v.x * s + v.y * c 
     };
 }
 

@@ -1,7 +1,7 @@
 Simp :: #import "Simp";
 
-draw_rect :: (world_pos: Vector2, size: Vector2, color: Vector4) {
-    screen_pos := world_to_screen_pos(world_pos);
+draw_rect :: (pos: Vector2, size: Vector2, color: Vector4) {
+    screen_pos := world_to_screen_pos(pos);
 
     half_size_x := size.x * .5;
     half_size_y := size.y * .5;
@@ -48,26 +48,27 @@ draw_tri_raw :: (triangle: Tri, color: Vector4) {
         color, color, color);
 }
 
-draw_vector :: (from: Vector2, v: Vector2, thickness: float, color: Vector4) {
-    half_thickness := thickness * .5;
-
-    dir := normalize(v);
-    right := rotate_dir_90_deg_cw(dir);
-
-    v1 := from - right * half_thickness;
-    v2 := v1 + right * thickness;
-    v3 := v2 + v;
-    v4 := v1 + v;
-
-    draw_quad_raw(Quad.{ v1, v2, v3, v4 }, color);
-}
-
 draw_line :: (from: Vector2, to: Vector2, thickness: float, color: Vector4) {
     v := to - from;
     draw_vector(from, v, thickness, color);
 }
 
-draw_partial_circle :: (center: Vector2, start_dir: Vector2, radius: float, degrees: float, segments: u8, thickness: float, color: Vector4) {
+draw_vector :: (from: Vector2, v: Vector2, thickness: float, color: Vector4) {
+    half_thickness := thickness * .5;
+
+    dir := normalize(v);
+    right := rotate_dir_90_deg_cw(dir);
+    half_right := right * half_thickness;
+
+    draw_quad_raw(.{ 
+        from - half_right, 
+        from + half_right, 
+        v2 + v, 
+        v1 + v 
+    }, color);
+}
+
+draw_partial_circle_outline :: (center: Vector2, start_dir: Vector2, radius: float, degrees: float, segments: u8, thickness: float, color: Vector4) {
         if segments == 0 then segments = 1;
 
         degrees_per_segment := degrees / segments;
@@ -77,12 +78,12 @@ draw_partial_circle :: (center: Vector2, start_dir: Vector2, radius: float, degr
 
         for 1..segments {
             angle := degrees_per_segment * it;
-            dir := rotate_around_origin(start_dir, -angle);
+            dir := rotate(start_dir, -angle);
 
             inner := center + dir * radius;
             outer := inner + dir * thickness;
 
-            draw_segment(last_inner, last_outer, inner, outer, color);
+            draw_circle_segment(last_inner, last_outer, inner, outer, color);
 
             last_inner = inner;
             last_outer = outer;
@@ -91,7 +92,7 @@ draw_partial_circle :: (center: Vector2, start_dir: Vector2, radius: float, degr
 
 #scope_file
 
-draw_segment :: (inner_a: Vector2, outer_a: Vector2, inner_b: Vector2, outer_b: Vector2, color: Vector4) {
+draw_circle_segment :: (inner_a: Vector2, outer_a: Vector2, inner_b: Vector2, outer_b: Vector2, color: Vector4) {
     draw_tri_raw(.{ inner_a, inner_b, outer_a }, color);
     draw_tri_raw(.{ inner_b, outer_b, outer_a }, color);
 }

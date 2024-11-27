@@ -88,7 +88,7 @@ is_right_grab : bool;
 min_drag_distance :: 10;
 
 drag_right :: () {
-    drag_camera(-pointer_delta);
+    move_camera(-pointer_delta);
 }
 
 drag_left :: () {

@@ -24,7 +24,7 @@ new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
         offset := dir_y * gizmo_arrow_half_width;
 
         tri_x = .{
-            base + dir_x * gizmo_interaction_size,
+            base + dir_x * gizmo_arrow_height,
             base + offset,
             base - offset,
         };
@@ -36,7 +36,7 @@ new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
         offset := dir_x * gizmo_arrow_half_width;
 
         tri_y = .{
-            base + dir_y * gizmo_interaction_size,
+            base + dir_y * gizmo_arrow_height,
             base + offset,
             base - offset,
         };
@@ -46,10 +46,8 @@ new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
     {
         v1_offset := gizmo_half_length - gizmo_interaction_half_size;
         v1 := pos + dir_x * v1_offset + dir_y * v1_offset;
-
-        v2 := v1 + dir_x * gizmo_interaction_size;
-
-        v3_v4_offset := dir_y * gizmo_interaction_size;
+        v2 := v1 + dir_x * gizmo_quad_length;
+        v3_v4_offset := dir_y * gizmo_quad_length;
 
         quad_xy = .{ 
             v1, 
@@ -72,6 +70,15 @@ new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
 
 draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
     pos := gizmo.pos;
+
+    // try cull
+    {
+        x := pos.x - right * gizmo_arrow_half_width;
+        y := pos.y - up * gizmo_arrow_half_width
+        size := gizmo_length + gizmo_arrow_height;
+        aabb := get_rect(x, y, size, size);
+        // TODO: check if can be culled, then return
+    }
 
     draw_axis(pos, gizmo.right, gizmo.up);
 
@@ -141,5 +148,7 @@ release_gizmo :: (gizmo: *Vector2Gizmo) {
 
 #scope_file
 
-gizmo_arrow_width :: gizmo_interaction_size * .75;
+gizmo_quad_length :: gizmo_interaction_size;
+gizmo_arrow_height :: gizmo_interaction_size;
+gizmo_arrow_width :: gizmo_arrow_height * .75;
 gizmo_arrow_half_width :: gizmo_arrow_width * .5;
