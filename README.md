@@ -5,14 +5,23 @@
 Jaine (pronounced like the name Jane) is a small game engine library written in jai.
 The name *Jaine* is an adaption of the name *jai* to make it sound more like the word *engine*: ~~en~~**jai**ne
 
-She is currently a **work in progress** in her early stages. 
-You may study her source but I do not recommend to employ her in production. 
-There simply is not enough functionality at the time.
+## Philosophy
+
+This library simplifies the creation of games and game engines.
+The goal is to enable people to easily build their own engine for the specific needs of their own game.
+
+The result will be faster and smaller games and engines with much less complexity and therefore fewer possible bugs.
+Not to mention a potential spiking increase in developer happiness, satisfaction and available time.
+
+## Work In Progress!
+
+Jaine is currently a **work in progress** in her early stages. 
+I do not recommend to employ her in production yet since a lot of functionality is still missing.
 
 ## Features
 
-**All features are 2D only!** We will keep it that way to benefit from simplicity.
-If we want to support 3D we will create a separate library at a later date.
+**All features are 2D only!**
+We will keep it that way in order to benefit from simplicity.
 
 ### Camera
 - Pan the camera
