@@ -27,7 +27,7 @@ on_mouse_right :: (ev: Event) {
         if is_right_grab {
             is_right_grab = false;
         } else {
-            // context menu
+            // show context menu once we have one
         }
     }
 }
@@ -51,7 +51,7 @@ update_input :: () {
         } else {
             drag_vec := pointer_screen_pos - right_pressed_screen_pos;
 
-            if length(drag_vec) >= min_drag_distance {
+            if length(drag_vec) > min_drag_distance {
                 is_right_grab = true;
                 drag_right();
             }
@@ -64,7 +64,7 @@ update_input :: () {
         } else {
             drag_vec := pointer_screen_pos - left_pressed_screen_pos;
 
-            if length(drag_vec) >= min_drag_distance {
+            if length(drag_vec) > min_drag_distance {
                 is_left_grab = true;
                 drag_left();
             }

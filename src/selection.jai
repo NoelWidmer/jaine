@@ -46,16 +46,16 @@ draw_selection_gizmo :: () {
                 gizmo_kind = GizmoKind.Vector2;
             }
 
-            new_vector2_gizmo(*gizmo.vector2, entity.pos, right);
-            draw_vector2_gizmo(gizmo.vector2);
+            new_positional_gizmo(*gizmo.vector2, entity.pos, right);
+            draw_positional_gizmo(gizmo.vector2);
         case Tool.Rotate;
             if gizmo_kind != GizmoKind.Theta {
                 gizmo.theta = .{};
                 gizmo_kind = GizmoKind.Theta;
             }
 
-            new_theta_gizmo(*gizmo.theta, entity.pos, right);
-            draw_theta_gizmo(*gizmo.theta);
+            new_rotational_gizmo(*gizmo.theta, entity.pos, right);
+            draw_rotational_gizmo(*gizmo.theta);
     }
 }
 
@@ -111,6 +111,6 @@ GizmoKind :: enum u8 {
 }
 
 Gizmo :: union { 
-  vector2: Vector2Gizmo; 
-  theta: ThetaGizmo;
+  vector2: PositionalGizmo; 
+  theta: RotationalGizmo;
 }

@@ -3,8 +3,8 @@
 #import "Window_Creation";
 #import "Input";
 
-#load "Vector2Gizmo.jai";
-#load "ThetaGizmo.jai";
+#load "PositionalGizmo.jai";
+#load "RotationalGizmo.jai";
 #load "draw.jai";
 #load "camera.jai";
 #load "window.jai";
@@ -21,19 +21,20 @@ main :: () {
     create_window();
     load_res();
 
-    time_prev = seconds_since_init();
+    last_time = seconds_since_init();
 
     while !quit {
-        reset_temporary_storage();    
+        reset_temporary_storage();   
+         
         update_window();
         update_input();
-        invalidate_viewport_world_pos();
+        update_viewport();
 
         // render
         {
-            { // clear
-                background_color :: Vector4.{ .1, .1, .2, 1};
-                Simp.clear_render_target(background_color.x, background_color.y, background_color.z, background_color.w);
+            {
+                background_color :: Vector3.{ .1, .1, .2 };
+                Simp.clear_render_target(background_color.x, background_color.y, background_color.z, 1);
             }
 
             draw_entities();    
@@ -44,9 +45,9 @@ main :: () {
         
         // update time
         {
-            time_current := seconds_since_init();
-            time_delta = xx (time_current - time_prev);
-            time_prev = time_current; 
+            current_time := seconds_since_init();
+            delta_time = xx (current_time - last_time);
+            last_time = current_time; 
         }
 
         frame_count += 1;
@@ -62,5 +63,5 @@ quit :: () {
 quit : bool;
 
 frame_count : int;
-time_prev : float64;
-time_delta : float;
+last_time : float64;
+delta_time : float;

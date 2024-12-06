@@ -10,7 +10,7 @@ create_window :: () {
         height = window_height/*, 
         background_color_rgb = .[background_color.x, background_color.y, background_color.z]*/);
 
-    on_window_size_changed(window_width, window_height);
+    on_window_size_changed_internal(window_width, window_height);
     Simp.set_render_target(window);
 }
 
@@ -21,7 +21,7 @@ update_window :: () {
         Simp.update_window(it.window);
         
         if it.window == window {
-            on_window_size_changed(it.width, it.height);
+            on_window_size_changed_internal(it.width, it.height);
         }
     }
     
@@ -64,11 +64,22 @@ toggle_fullscreen :: () {
 
     if success {
         is_fullscreen = new_state;
-        on_window_size_changed(width, height);
+        on_window_size_changed_internal(width, height);
     }
 }
 
 #scope_file
 
+Vector32s :: struct {
+    x : s32;
+    y : s32;
+}
+
 is_fullscreen : bool;
+viewport_pixel_size : Vector32s;
 prev_window_info : Saved_Window_Info;
+
+on_window_size_changed_internal :: (width: s32, height: s32) {
+    viewport_pixel_size = .{ width, height };
+    on_window_size_changed(width, height);
+}

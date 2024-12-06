@@ -1,11 +1,11 @@
-ThetaGizmo :: struct {
+RotationalGizmo :: struct {
     pos: Vector2;
     right: Vector2;
     up: Vector2;
     grabbed: bool;
 }
 
-new_theta_gizmo :: (gizmo: *ThetaGizmo, pos: Vector2, right: Vector2) {
+new_rotational_gizmo :: (gizmo: *RotationalGizmo, pos: Vector2, right: Vector2) {
     up := rotate_dir_90_deg_ccw(right);
 
     <<gizmo = .{ 
@@ -16,14 +16,8 @@ new_theta_gizmo :: (gizmo: *ThetaGizmo, pos: Vector2, right: Vector2) {
     };
 }
 
-draw_theta_gizmo :: (gizmo: ThetaGizmo) {
+draw_rotational_gizmo :: (gizmo: RotationalGizmo) {
     center := gizmo.pos;
-
-    /*// try cull
-    {
-        aabb := get_rect(center.x - right * .5, center.y - up * .5, outer_radius, outer_radius);
-        // TODO: check if can be culled, then return
-    }*/
 
     if gizmo.grabbed {
         center_to_grab_dir := normalize(left_pressed_world_pos - center);
@@ -35,22 +29,22 @@ draw_theta_gizmo :: (gizmo: ThetaGizmo) {
             degrees := angle(center_to_grab_dir, center_to_pointer_dir);
             if dot(left, center_to_pointer_dir) > 0 then degrees = -degrees;
             segments := cast(u8) (abs(degrees) / 7);
-            draw_partial_circle_outline(center, center_to_grab_dir, inner_radius, degrees, segments, 1, color_gizmo_interactive);
+            draw_partial_circle_world_outline(center, center_to_grab_dir, inner_radius, degrees, segments, 1, color_gizmo_interactive);
         }
 
         // to grab point
-        draw_vector(center, center_to_grab_dir * outer_radius, 1, color_gizmo_blue);
+        draw_world_vector(center, center_to_grab_dir * outer_radius, 1, color_gizmo_blue);
 
         // to pointer
-        draw_line(center, pointer_world_pos, 1, color_gizmo_interactive);
+        draw_world_line(center, pointer_world_pos, 1, color_gizmo_interactive);
     } else {
-        draw_partial_circle_outline(center, gizmo.up, inner_radius, 90, 12, gizmo_interaction_half_size, color_gizmo_blue);
+        draw_partial_circle_world_outline(center, gizmo.up, inner_radius, 90, 12, gizmo_interaction_size * .5, color_gizmo_blue);
     }
 
-    draw_axis(center, gizmo.right, gizmo.up);
+    draw_gizmo_axis(center, gizmo.up, gizmo.right);
 }
 
-try_begin_gizmo_grab :: (gizmo: *ThetaGizmo) -> bool {
+try_begin_gizmo_grab :: (gizmo: *RotationalGizmo) -> bool {
     dist := distance(pointer_world_pos, gizmo.pos);
 
     if dist > outer_radius return false;
@@ -63,7 +57,7 @@ try_begin_gizmo_grab :: (gizmo: *ThetaGizmo) -> bool {
     return false;
 }
 
-try_drag_gizmo :: (gizmo: *ThetaGizmo) {
+try_drag_gizmo :: (gizmo: *RotationalGizmo) {
     if !gizmo.grabbed return;
     if last_pointer_screen_pos == pointer_screen_pos return;
 
@@ -88,11 +82,11 @@ try_drag_gizmo :: (gizmo: *ThetaGizmo) {
     selected.theta += signed_theta;
 }
 
-release_gizmo :: (gizmo: *ThetaGizmo) {
+release_gizmo :: (gizmo: *RotationalGizmo) {
     gizmo.grabbed = false;
 }
 
 #scope_file
 
 outer_radius :: gizmo_length;
-inner_radius :: outer_radius - gizmo_interaction_half_size;
+inner_radius :: outer_radius - gizmo_interaction_size * .5;

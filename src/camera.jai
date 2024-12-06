@@ -14,7 +14,7 @@ on_window_size_changed :: (width: s32, height: s32) {
     viewport_world_size = .{ xx width, xx height };
 }
 
-invalidate_viewport_world_pos :: () {
+update_viewport :: () {
     viewport_bottom_left_world_pos = cam_world_pos - viewport_world_size * .5;
 }
 

@@ -8,7 +8,7 @@ Entity :: struct {
 }
 
 get_entity_size :: () -> Vector2 {
-    return .{ xx strawberry.width * 2., xx strawberry.height * 2. };
+    return .{ xx (strawberry.width * 2), xx (strawberry.height * 2) };
 }
 
 get_entity_up :: (entity: Entity) -> Vector2 {
@@ -20,21 +20,22 @@ get_entity_up :: (entity: Entity) -> Vector2 {
 get_entity_right :: (entity: Entity) -> Vector2 {
     global_right :: Vector2.{ 1, 0 };
     if entity.theta == 0 return global_right;
-    entity_up := get_entity_up(entity);
-    return rotate_dir_90_deg_cw(entity_up);
+    return rotate_by_deg(global_right, entity.theta);
 }
 
 get_entity_quad :: (entity: Entity) -> Quad {
-    local_up := get_entity_up(entity);
-    local_right := get_entity_right(entity);
+    up_dir := get_entity_up(entity);
+    right_dir := get_entity_right(entity);
 
     size := get_entity_size();
     size_half := size * .5;
 
-    v1 := entity.pos - local_up * size_half.y - local_right * size_half.x;
-    v2 := v1 + local_right * size.x;
-    v3 := v2 + local_up * size.y;
-    v4 := v1 + local_up * size.y;
+    up_offset := up_dir * size.y;
+
+    v1 := entity.pos - up_dir * size_half.y - right_dir * size_half.x;
+    v2 := v1 + right_dir * size.x;
+    v3 := v2 + up_offset;
+    v4 := v1 + up_offset;
 
     return .{ v1, v2, v3, v4 };
 }
@@ -59,9 +60,9 @@ draw_entities :: () {
     for entities {
         if it.theta == 0 {
             size := get_entity_size();
-            draw_rect(it.pos, size, color);
+            draw_world_rect(it.pos, size);
         } else {
-                uv := Quad.{
+                uv :: Quad.{
                     .{ 0, 0 },
                     .{ 1, 0 },
                     .{ 1, 1 },
@@ -69,7 +70,7 @@ draw_entities :: () {
                 };
 
                 quad := get_entity_quad(it);
-                draw_quad_uv_raw(quad, uv, color);
+                draw_world_quad_with_uv(quad, uv);
             }
     }
 }

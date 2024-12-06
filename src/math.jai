@@ -1,11 +1,3 @@
-rotate_dir_90_deg_cw :: (dir: Vector2) -> Vector2 {
-    return .{ dir.y, -dir.x };
-}
-
-rotate_dir_90_deg_ccw :: (dir: Vector2) -> Vector2 {
-    return .{ -dir.y, dir.x };
-}
-
 Tri :: struct {
     v1: Vector2;
     v2: Vector2;
@@ -30,6 +22,14 @@ is_inside_triangle :: (point: Vector2, tri: Tri) -> bool {
     if !is_inside_side(point, tri.v1, tri.v2) then return false;
     if !is_inside_side(point, tri.v2, tri.v3) then return false;
     return is_inside_side(point, tri.v3, tri.v1);
+}
+
+rotate_dir_90_deg_cw :: (dir: Vector2) -> Vector2 {
+    return .{ dir.y, -dir.x };
+}
+
+rotate_dir_90_deg_ccw :: (dir: Vector2) -> Vector2 {
+    return .{ -dir.y, dir.x };
 }
 
 rotate_around_pivot_by_deg :: (v: Vector2, pivot: Vector2, deg: float) -> Vector2 {

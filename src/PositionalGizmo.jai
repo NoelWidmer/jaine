@@ -1,21 +1,21 @@
-Vector2Gizmo :: struct {
+PositionalGizmo :: struct {
     pos: Vector2;
     right: Vector2;
     up: Vector2;
     tri_x: Tri;
     tri_y: Tri;
     quad_xy: Quad;
-    mode: Vector2GizmoMode;
+    mode: PositionalGizmoMode;
 }
 
-Vector2GizmoMode :: enum u8 {
+PositionalGizmoMode :: enum u8 {
     None;
     X;
     Y; 
     XY;
 }
 
-new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
+new_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     tri_x : Tri = ---;
@@ -44,7 +44,7 @@ new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
 
     quad_xy : Quad = ---;
     {
-        v1_offset := gizmo_half_length - gizmo_interaction_half_size;
+        v1_offset := gizmo_length * .5 - gizmo_interaction_size * .5;
         v1 := pos + dir_x * v1_offset + dir_y * v1_offset;
         v2 := v1 + dir_x * gizmo_quad_length;
         v3_v4_offset := dir_y * gizmo_quad_length;
@@ -68,82 +68,73 @@ new_vector2_gizmo :: (gizmo: *Vector2Gizmo, pos: Vector2, dir_x: Vector2) {
     };
 }
 
-draw_vector2_gizmo :: (gizmo: Vector2Gizmo) {
+draw_positional_gizmo :: (gizmo: PositionalGizmo) {
     pos := gizmo.pos;
 
-    /*// try cull
-    {
-        x := pos - gizmo.right * gizmo_arrow_half_width;
-        y := pos - gizmo.up * gizmo_arrow_half_width;
-        size := gizmo_length + gizmo_arrow_height;
-        aabb := get_rect(x, y, size, size);
-        // TODO: check if can be culled, then return
-    }*/
-
-    draw_axis(pos, gizmo.right, gizmo.up);
+    draw_gizmo_axis(pos, gizmo.up, gizmo.right);
 
     // x
     {
-        color := ifx gizmo.mode == Vector2GizmoMode.X 
+        color := ifx gizmo.mode == PositionalGizmoMode.X 
             then color_gizmo_interactive
             else color_gizmo_red;
         
-        draw_tri_raw(gizmo.tri_x, color);
+        draw_world_tri(gizmo.tri_x, color);
     }
     
     // y
     {
-        color := ifx gizmo.mode == Vector2GizmoMode.Y
+        color := ifx gizmo.mode == PositionalGizmoMode.Y
             then color_gizmo_interactive
             else color_gizmo_green;
             
-        draw_tri_raw(gizmo.tri_y, color);
+        draw_world_tri(gizmo.tri_y, color);
     }
 
     // xy
     {
-        color := ifx gizmo.mode == Vector2GizmoMode.XY
+        color := ifx gizmo.mode == PositionalGizmoMode.XY
             then color_gizmo_interactive
             else color_gizmo_blue;
 
-        draw_quad_raw(gizmo.quad_xy, color);
+        draw_world_quad(gizmo.quad_xy, color);
     }
 }
 
-try_begin_gizmo_grab :: (gizmo: *Vector2Gizmo) -> bool {
+try_begin_gizmo_grab :: (gizmo: *PositionalGizmo) -> bool {
     if is_inside_quad(pointer_world_pos, gizmo.quad_xy) {
-        gizmo.mode = Vector2GizmoMode.XY;
+        gizmo.mode = PositionalGizmoMode.XY;
         return true;
     }
 
     if is_inside_triangle(pointer_world_pos, gizmo.tri_x) {
-        gizmo.mode = Vector2GizmoMode.X;
+        gizmo.mode = PositionalGizmoMode.X;
         return true;
     }
 
     if is_inside_triangle(pointer_world_pos, gizmo.tri_y) {
-        gizmo.mode = Vector2GizmoMode.Y;
+        gizmo.mode = PositionalGizmoMode.Y;
         return true;
     }
 
     return false;
 }
 
-try_drag_gizmo :: (gizmo: Vector2Gizmo) {
-    if gizmo.mode == Vector2GizmoMode.None return;
+try_drag_gizmo :: (gizmo: PositionalGizmo) {
+    if gizmo.mode == PositionalGizmoMode.None return;
 
     selected := get_selected();
     world_pos := selected.pos;
 
     if gizmo.mode == {
-        case Vector2GizmoMode.X; selected.pos += project(pointer_delta, gizmo.right);
-        case Vector2GizmoMode.Y; selected.pos += project(pointer_delta, gizmo.up);
-        case Vector2GizmoMode.XY; selected.pos += pointer_delta;
+        case PositionalGizmoMode.X; selected.pos += project(pointer_delta, gizmo.right);
+        case PositionalGizmoMode.Y; selected.pos += project(pointer_delta, gizmo.up);
+        case PositionalGizmoMode.XY; selected.pos += pointer_delta;
     }
 }
 
-release_gizmo :: (gizmo: *Vector2Gizmo) {
-    gizmo.mode = Vector2GizmoMode.None;
+release_gizmo :: (gizmo: *PositionalGizmo) {
+    gizmo.mode = PositionalGizmoMode.None;
 }
 
 #scope_file
