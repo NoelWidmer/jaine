@@ -32,8 +32,24 @@ on_mouse_right :: (ev: Event) {
     }
 }
 
+on_history :: (ev: Event) {
+    if ctrl {
+        if ev.key_pressed then return;
+        
+        event := ifx shift
+            then undo(*history)
+            else redo(*history);
+
+        print("%\n", <<event);
+    }
+}
+
 on_shift :: (ev: Event) {
     shift = ifx ev.key_pressed then true else false;
+}
+
+on_ctrl :: (ev: Event) {
+    ctrl = ifx ev.key_pressed then true else false;
 }
 
 on_a :: (ev: Event) {
@@ -82,6 +98,7 @@ update_input :: () {
 
 left_pressed_world_pos : Vector2;
 shift : bool;
+ctrl : bool;
 
 #scope_file
 

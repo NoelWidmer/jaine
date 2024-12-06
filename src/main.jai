@@ -20,7 +20,24 @@
 #load "history.jai";
 
 HistoricalEvent :: struct {
-    offset: Vector2;
+    data_type: HistoricalEventDataType; 
+    data: HistoricalEventData; 
+}
+
+HistoricalEventDataType :: enum {
+    Position;
+    Rotation;
+}
+
+HistoricalEventData :: union {
+    pos: struct {
+        entity_id: s64;
+        delta: Vector2;
+    };
+    rot: struct {
+        entity_id: s64;
+        delta: float;
+    };
 }
 
 history : History(HistoricalEvent) = ---;

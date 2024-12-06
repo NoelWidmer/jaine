@@ -11,7 +11,6 @@ begin_history :: ($T: Type) -> History(T) {
 }
 
 record :: (history: *History($T), event: T) {
-    print("%\n", event);
     push(*history.events, event);
 }
 

@@ -51,10 +51,14 @@ update_window :: () {
                     on_tool(it);
                 } else if key == xx #char "X" {
                     on_global_local(it);
+                } else if key == xx #char "Z" {
+                    on_history(it);
                 } else if key == .DELETE {
                     on_delete(it);
                 } else if key == .SHIFT {
                     on_shift(it);
+                } else if key == .CTRL {
+                    on_ctrl(it);
                 }
             }
         }            
