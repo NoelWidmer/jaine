@@ -24,7 +24,7 @@ try_select_entity :: () -> bool {
 
 delete_selected :: () {
     if selected == null return;
-    despawn_entity(selected);
+    remove_entity(selected);
     selected = null;
 }
 

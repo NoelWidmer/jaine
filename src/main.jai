@@ -30,14 +30,8 @@ HistoricalEventDataType :: enum {
 }
 
 HistoricalEventData :: union {
-    pos: struct {
-        entity_id: s64;
-        delta: Vector2;
-    };
-    rot: struct {
-        entity_id: s64;
-        delta: float;
-    };
+    pos: PositionalHistoryEvent;
+    rot: RotationalHistoryEvent;
 }
 
 history : History(HistoricalEvent) = ---;

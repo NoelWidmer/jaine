@@ -143,8 +143,10 @@ release_gizmo :: (gizmo: *PositionalGizmo) {
     gizmo.mode = PositionalGizmoMode.None;
 
     if gizmo.pending != .{ 0, 0 } {
+        entity := get_selected();
+
         data : HistoricalEventData;
-        data.pos = .{ -1, gizmo.pending };
+        data.pos = .{ entity.id, gizmo.pending };
         record(*history, .{ HistoricalEventDataType.Position, data });
 
         gizmo.pending = .{ 0, 0 };

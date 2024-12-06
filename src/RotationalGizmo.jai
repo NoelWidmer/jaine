@@ -89,8 +89,10 @@ release_gizmo :: (gizmo: *RotationalGizmo) {
     gizmo.grabbed = false;
 
     if gizmo.pending != 0 {
+        entity := get_selected();
+
         data : HistoricalEventData;
-        data.rot = .{ -1, gizmo.pending };
+        data.rot = .{ entity.id, gizmo.pending };
         record(*history, .{ HistoricalEventDataType.Rotation, data });
 
         gizmo.pending = 0;

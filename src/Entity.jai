@@ -1,12 +1,18 @@
 #import "GetRect";
 #import "Bucket_Array";
-
-entities : Bucket_Array(Entity, 128);
+#import "Hash_Table";
 
 Entity :: struct {
     locator: Bucket_Locator;
+    id: u64;
+
     pos: Vector2;
     theta: float;
+}
+
+get_entity :: (id: u64) -> *Entity {
+    entity, success := table_find(*entity_by_id, id);
+    return ifx success then entity else null;
 }
 
 get_entity_size :: () -> Vector2 {
@@ -42,16 +48,23 @@ get_entity_quad :: (entity: Entity) -> Quad {
     return .{ v1, v2, v3, v4 };
 }
 
-spawn_entity :: () -> *Entity {
+add_entity :: () -> *Entity {
     locator, entity := bucket_array_add(*entities, .{
+        id = next_id,
         pos = pointer_world_pos
     });
 
+    table_add(*entity_by_id, next_id, entity);    
     entity.locator = locator;
+    
+    next_id += 1;
     return entity;
 }
 
-despawn_entity :: (entity: *Entity) {
+remove_entity :: (entity: *Entity) {
+    success, _ := table_remove(*entity_by_id, entity.id);
+    assert(success, "could not remove an entity from the id lookup.");
+
     bucket_array_remove(*entities, entity.locator);
 }
 
@@ -77,3 +90,10 @@ draw_entities :: () {
             }
     }
 }
+
+entities : Bucket_Array(Entity, 128);
+
+#scope_file
+
+next_id : u64;
+entity_by_id : Table(u64, *Entity);

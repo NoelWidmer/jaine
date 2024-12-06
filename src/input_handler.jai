@@ -37,11 +37,38 @@ on_history :: (ev: Event) {
         if ev.key_pressed then return;
         
         event := ifx shift
-            then undo(*history)
-            else redo(*history);
+            then redo(*history)
+            else undo(*history);
 
-        // TODO actually do the thing.
+        if event == null return;
+
+        if event.data_type == {
+            case HistoricalEventDataType.Position; undo(event.data.pos, !shift);
+            case HistoricalEventDataType.Rotation; undo(event.data.rot, !shift);
+        }
     }
+}
+
+PositionalHistoryEvent :: struct {
+    entity_id: u64;
+    delta: Vector2;
+}
+
+undo :: (event: PositionalHistoryEvent, undo: bool) {
+    entity := get_entity(event.entity_id);
+    assert(entity != null, "could not modify history for entity with id %", event.entity_id);
+    print("% position for %\n", ifx undo then "undo" else "redo", entity.locator);
+}
+
+RotationalHistoryEvent :: struct {
+    entity_id: u64;
+    delta: float;
+}
+
+undo :: (event: RotationalHistoryEvent, undo: bool) {
+    entity := get_entity(event.entity_id);
+    assert(entity != null, "could not modify history for entity with id %", event.entity_id);
+    print("% rotation for %\n", ifx undo then "undo" else "redo", entity.locator);
 }
 
 on_shift :: (ev: Event) {
@@ -53,7 +80,7 @@ on_ctrl :: (ev: Event) {
 }
 
 on_a :: (ev: Event) {
-    if shift && ev.key_pressed then spawn_entity();
+    if shift && ev.key_pressed then add_entity();
 }
 
 on_tool :: (ev: Event) {
