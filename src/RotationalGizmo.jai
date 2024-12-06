@@ -29,7 +29,7 @@ draw_rotational_gizmo :: (gizmo: RotationalGizmo) {
             degrees := angle(center_to_grab_dir, center_to_pointer_dir);
             if dot(left, center_to_pointer_dir) > 0 then degrees = -degrees;
             segments := cast(u8) (abs(degrees) / 7);
-            draw_partial_circle_world_outline(center, center_to_grab_dir, inner_radius, degrees, segments, 1, color_gizmo_interactive);
+            draw_partial_circle_world_outline(center, center_to_grab_dir, outer_radius, degrees, segments, 1, color_gizmo_interactive);
         }
 
         // to grab point

@@ -11,7 +11,7 @@ on_mouse_left :: (ev: Event) {
         if is_left_grab {
             is_left_grab = false;
         } else {
-            if !try_select_entity() then spawn_entity();
+            try_select_entity();
         }
     }
 }
@@ -30,6 +30,14 @@ on_mouse_right :: (ev: Event) {
             // show context menu once we have one
         }
     }
+}
+
+on_shift :: (ev: Event) {
+    shift = ifx ev.key_pressed then true else false;
+}
+
+on_a :: (ev: Event) {
+    if shift && ev.key_pressed then spawn_entity();
 }
 
 on_tool :: (ev: Event) {
@@ -73,6 +81,7 @@ update_input :: () {
 }
 
 left_pressed_world_pos : Vector2;
+shift : bool;
 
 #scope_file
 

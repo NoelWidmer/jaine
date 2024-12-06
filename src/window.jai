@@ -7,8 +7,7 @@ create_window :: () {
     window = create_window(
         window_name = "Jaine", 
         width = window_width, 
-        height = window_height/*, 
-        background_color_rgb = .[background_color.x, background_color.y, background_color.z]*/);
+        height = window_height);
 
     on_window_size_changed_internal(window_width, window_height);
     Simp.set_render_target(window);
@@ -46,12 +45,16 @@ update_window :: () {
                     on_mouse_left(it);
                 } else if key == .MOUSE_BUTTON_RIGHT {
                     on_mouse_right(it);
+                } else if key == xx #char "A" {
+                    on_a(it);
                 } else if key == xx #char "T" {
                     on_tool(it);
                 } else if key == xx #char "X" {
                     on_global_local(it);
                 } else if key == .DELETE {
                     on_delete(it);
+                } else if key == .SHIFT {
+                    on_shift(it);
                 }
             }
         }            
