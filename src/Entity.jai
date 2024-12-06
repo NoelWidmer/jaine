@@ -53,6 +53,8 @@ add_entity :: () -> *Entity {
         id = next_id,
         pos = pointer_world_pos
     });
+    
+    // record history
 
     table_add(*entity_by_id, next_id, entity);    
     entity.locator = locator;
@@ -65,6 +67,7 @@ remove_entity :: (entity: *Entity) {
     success, _ := table_remove(*entity_by_id, entity.id);
     assert(success, "could not remove an entity from the id lookup.");
 
+    // record history
     bucket_array_remove(*entities, entity.locator);
 }
 

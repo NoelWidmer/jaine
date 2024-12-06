@@ -9,9 +9,8 @@ try_select_entity :: () -> bool {
         quad := get_entity_quad(it);
 
         if is_inside_quad(pointer_world_pos, quad) {
-            if selected == it {
-                selected = null;
-            } else {
+            if selected != it {
+                // record history
                 selected = it;
             }
 
@@ -19,7 +18,8 @@ try_select_entity :: () -> bool {
         }
     }
 
-    return false;
+    // record history
+    selected = null;
 }
 
 delete_selected :: () {

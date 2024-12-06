@@ -57,7 +57,7 @@ PositionalHistoryEvent :: struct {
 undo :: (event: PositionalHistoryEvent, undo: bool) {
     entity := get_entity(event.entity_id);
     assert(entity != null, "could not modify history for entity with id %", event.entity_id);
-    print("% position for %\n", ifx undo then "undo" else "redo", entity.locator);
+    entity.pos += ifx undo then -event.delta else event.delta;
 }
 
 RotationalHistoryEvent :: struct {
@@ -68,7 +68,7 @@ RotationalHistoryEvent :: struct {
 undo :: (event: RotationalHistoryEvent, undo: bool) {
     entity := get_entity(event.entity_id);
     assert(entity != null, "could not modify history for entity with id %", event.entity_id);
-    print("% rotation for %\n", ifx undo then "undo" else "redo", entity.locator);
+    entity.theta += ifx undo then -event.delta else event.delta;
 }
 
 on_shift :: (ev: Event) {
