@@ -16,10 +16,34 @@
 #load "tool.jai";
 #load "gizmo.jai";
 #load "res.jai";
+#load "CircularStack.jai";
+
+HistoricalEvent :: struct {
+    index: u32;
+}
 
 main :: () {
     create_window();
     load_res();
+
+    circular_stack := new_circular_stack(HistoricalEvent);
+
+    for 0..105 {
+        print("%\n", it);
+        push(*circular_stack, .{ index = xx it });
+    }
+    
+    for 0..30 {
+        pop(*circular_stack);
+    }
+
+    last := peek(*circular_stack);
+
+    if last == null {
+        print("null");
+    } else {
+        print("%\n", <<last);
+    }
 
     last_time = seconds_since_init();
 
