@@ -17,10 +17,7 @@
 #load "gizmo.jai";
 #load "res.jai";
 #load "CircularStack.jai";
-
-HistoricalEvent :: struct {
-    index: u32;
-}
+#load "history.jai";
 
 main :: () {
     create_window();

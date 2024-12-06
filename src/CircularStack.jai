@@ -1,4 +1,4 @@
-CircularStack :: struct($T: Type) {
+CircularStack :: struct(T: Type) {
     items: [50]T;
     next_index: u32;
     actual_count: u32;
