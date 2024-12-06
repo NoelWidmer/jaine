@@ -40,7 +40,7 @@ on_history :: (ev: Event) {
             then undo(*history)
             else redo(*history);
 
-        print("%\n", <<event);
+        // TODO actually do the thing.
     }
 }
 

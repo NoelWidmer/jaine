@@ -1,19 +1,18 @@
 #import "GetRect";
 
 get_selected :: () -> *Entity {
-    if selected == -1 then return null;
-    return *entities[selected];
+    return selected;
 }
 
 try_select_entity :: () -> bool {
-    for entities {
+    for *entities {
         quad := get_entity_quad(it);
 
         if is_inside_quad(pointer_world_pos, quad) {
-            if selected == it_index {
-                selected = -1;
+            if selected == it {
+                selected = null;
             } else {
-                selected = it_index;
+                selected = it;
             }
 
             return true;
@@ -24,20 +23,19 @@ try_select_entity :: () -> bool {
 }
 
 delete_selected :: () {
-    if selected == -1 return;
+    if selected == null return;
     despawn_entity(selected);
-    selected = -1;
+    selected = null;
 }
 
 draw_selection_gizmo :: () {
-    if selected == -1 return;
-    entity := entities[selected];
+    if selected == null return;
     
     Simp.set_shader_for_color();   
 
     right := ifx is_global() 
         then Vector2.{ 1, 0 }
-        else get_entity_right(entity); 
+        else get_entity_right(selected); 
     
     if get_selected_tool() == {
         case Tool.Move;
@@ -46,7 +44,7 @@ draw_selection_gizmo :: () {
                 gizmo_kind = GizmoKind.Vector2;
             }
 
-            new_positional_gizmo(*gizmo.vector2, entity.pos, right);
+            new_positional_gizmo(*gizmo.vector2, selected.pos, right);
             draw_positional_gizmo(gizmo.vector2);
         case Tool.Rotate;
             if gizmo_kind != GizmoKind.Theta {
@@ -54,7 +52,7 @@ draw_selection_gizmo :: () {
                 gizmo_kind = GizmoKind.Theta;
             }
 
-            new_rotational_gizmo(*gizmo.theta, entity.pos, right);
+            new_rotational_gizmo(*gizmo.theta, selected.pos, right);
             draw_rotational_gizmo(*gizmo.theta);
     }
 }
@@ -68,7 +66,7 @@ is_global :: () -> bool {
 }
 
 try_grab_selected_gizmo :: () -> bool {
-    if selected == -1 return false;
+    if selected == null return false;
     
     if gizmo_kind == {
         case GizmoKind.Vector2; return try_begin_gizmo_grab(*gizmo.vector2);
@@ -79,7 +77,7 @@ try_grab_selected_gizmo :: () -> bool {
 }
 
 try_drag_selected_gizmo :: () {
-    if selected == -1 return;
+    if selected == null return;
     
     if gizmo_kind == {
         case GizmoKind.Vector2; try_drag_gizmo(*gizmo.vector2);
@@ -88,7 +86,7 @@ try_drag_selected_gizmo :: () {
 }
 
 release_selected_gizmo :: () {
-    if selected == -1 return;
+    if selected == null return;
 
     if gizmo_kind == {
         case GizmoKind.Vector2; release_gizmo(*gizmo.vector2);
@@ -98,7 +96,7 @@ release_selected_gizmo :: () {
 
 #scope_file
 
-selected : s64 = -1;
+selected : *Entity;
 
 is_global_ := true;
 

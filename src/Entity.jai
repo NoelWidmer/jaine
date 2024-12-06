@@ -1,8 +1,10 @@
 #import "GetRect";
+#import "Bucket_Array";
 
-entities : [..]Entity;
+entities : Bucket_Array(Entity, 128);
 
 Entity :: struct {
+    locator: Bucket_Locator;
     pos: Vector2;
     theta: float;
 }
@@ -40,16 +42,17 @@ get_entity_quad :: (entity: Entity) -> Quad {
     return .{ v1, v2, v3, v4 };
 }
 
-spawn_entity :: () {
-    entity : Entity = .{
+spawn_entity :: () -> *Entity {
+    locator, entity := bucket_array_add(*entities, .{
         pos = pointer_world_pos
-    };
+    });
 
-    array_add(*entities, entity);
+    entity.locator = locator;
+    return entity;
 }
 
-despawn_entity :: (index: s64) {
-    array_unordered_remove_by_index(*entities, index);
+despawn_entity :: (entity: *Entity) {
+    bucket_array_remove(*entities, entity.locator);
 }
 
 draw_entities :: () {
