@@ -6,6 +6,7 @@ PositionalGizmo :: struct {
     tri_y: Tri;
     quad_xy: Quad;
     mode: PositionalGizmoMode;
+    pending: Vector2;
 }
 
 PositionalGizmoMode :: enum u8 {
@@ -64,7 +65,8 @@ new_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) 
         tri_x,
         tri_y,
         quad_xy, 
-        gizmo.mode
+        gizmo.mode, 
+        gizmo.pending
     };
 }
 
@@ -120,21 +122,30 @@ try_begin_gizmo_grab :: (gizmo: *PositionalGizmo) -> bool {
     return false;
 }
 
-try_drag_gizmo :: (gizmo: PositionalGizmo) {
+try_drag_gizmo :: (gizmo: *PositionalGizmo) {
     if gizmo.mode == PositionalGizmoMode.None return;
 
     selected := get_selected();
     world_pos := selected.pos;
 
+    delta_pos : Vector2;
     if gizmo.mode == {
-        case PositionalGizmoMode.X; selected.pos += project(pointer_delta, gizmo.right);
-        case PositionalGizmoMode.Y; selected.pos += project(pointer_delta, gizmo.up);
-        case PositionalGizmoMode.XY; selected.pos += pointer_delta;
+        case PositionalGizmoMode.X; delta_pos = project(pointer_delta, gizmo.right);
+        case PositionalGizmoMode.Y; delta_pos = project(pointer_delta, gizmo.up);
+        case PositionalGizmoMode.XY; delta_pos = pointer_delta;
     }
+
+    gizmo.pending += delta_pos;
+    selected.pos += delta_pos;
 }
 
 release_gizmo :: (gizmo: *PositionalGizmo) {
     gizmo.mode = PositionalGizmoMode.None;
+
+    if gizmo.pending != .{ 0, 0 } {
+        record(*history, .{ gizmo.pending });
+        gizmo.pending = .{ 0, 0 };
+    }
 }
 
 #scope_file

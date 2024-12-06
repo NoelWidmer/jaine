@@ -82,7 +82,7 @@ try_drag_selected_gizmo :: () {
     if selected == -1 return;
     
     if gizmo_kind == {
-        case GizmoKind.Vector2; try_drag_gizmo(gizmo.vector2);
+        case GizmoKind.Vector2; try_drag_gizmo(*gizmo.vector2);
         case GizmoKind.Theta; try_drag_gizmo(*gizmo.theta);
     }
 }

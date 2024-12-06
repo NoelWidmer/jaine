@@ -3,6 +3,7 @@ RotationalGizmo :: struct {
     right: Vector2;
     up: Vector2;
     grabbed: bool;
+    pending: float;
 }
 
 new_rotational_gizmo :: (gizmo: *RotationalGizmo, pos: Vector2, right: Vector2) {
@@ -12,7 +13,8 @@ new_rotational_gizmo :: (gizmo: *RotationalGizmo, pos: Vector2, right: Vector2) 
         pos, 
         right,
         up,
-        gizmo.grabbed 
+        gizmo.grabbed, 
+        gizmo.pending
     };
 }
 
@@ -73,17 +75,23 @@ try_drag_gizmo :: (gizmo: *RotationalGizmo) {
     up := rotate_dir_90_deg_ccw(from);
     up_dot := dot(up, to);
 
-    signed_theta : float;
+    delta_theta : float;
 
     if up_dot > 0 
-        then signed_theta = theta;
-        else signed_theta = -theta;
+        then delta_theta = theta;
+        else delta_theta = -theta;
 
-    selected.theta += signed_theta;
+    gizmo.pending += delta_theta;
+    selected.theta += delta_theta;
 }
 
 release_gizmo :: (gizmo: *RotationalGizmo) {
     gizmo.grabbed = false;
+
+    if gizmo.pending != 0 {
+        record(*history, .{ .{ gizmo.pending, gizmo.pending } });
+        gizmo.pending = 0;
+    }
 }
 
 #scope_file
