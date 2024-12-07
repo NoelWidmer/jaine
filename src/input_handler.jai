@@ -42,9 +42,16 @@ on_history :: (ev: Event) {
 
         if event == null return;
 
-        if event.data_type == {
-            case HistoricalEventDataType.Position; undo(event.data.pos, !shift);
-            case HistoricalEventDataType.Rotation; undo(event.data.rot, !shift);
+        positional := isa(event, PositionalHistoryEvent);
+        if positional {
+            undo(positional, !shift);
+            return;
+        }
+        
+        rotational := isa(event, RotationalHistoryEvent);
+        if rotational {
+            undo(rotational, !shift);
+            return;
         }
     }
 }

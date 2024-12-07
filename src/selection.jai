@@ -20,6 +20,7 @@ try_select_entity :: () -> bool {
 
     // record history
     selected = null;
+    return false;
 }
 
 delete_selected :: () {

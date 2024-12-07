@@ -2,6 +2,7 @@
 #import "Math";
 #import "Window_Creation";
 #import "Input";
+#import "Tagged_Union";
 
 #load "PositionalGizmo.jai";
 #load "RotationalGizmo.jai";
@@ -19,20 +20,9 @@
 #load "CircularStack.jai";
 #load "history.jai";
 
-HistoricalEvent :: struct {
-    data_type: HistoricalEventDataType; 
-    data: HistoricalEventData; 
-}
-
-HistoricalEventDataType :: enum {
-    Position;
-    Rotation;
-}
-
-HistoricalEventData :: union {
-    pos: PositionalHistoryEvent;
-    rot: RotationalHistoryEvent;
-}
+HistoricalEvent :: Tagged_Union(
+    PositionalHistoryEvent, 
+    RotationalHistoryEvent);
 
 history : History(HistoricalEvent) = ---;
 

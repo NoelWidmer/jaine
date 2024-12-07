@@ -91,9 +91,9 @@ release_gizmo :: (gizmo: *RotationalGizmo) {
     if gizmo.pending != 0 {
         entity := get_selected();
 
-        data : HistoricalEventData;
-        data.rot = .{ entity.id, gizmo.pending };
-        record(*history, .{ HistoricalEventDataType.Rotation, data });
+        event : HistoricalEvent;
+        set(*event, RotationalHistoryEvent.{ entity.id, gizmo.pending });
+        record(*history, event);
 
         gizmo.pending = 0;
     }
