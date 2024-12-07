@@ -22,7 +22,10 @@
 
 HistoricalEvent :: Tagged_Union(
     PositionalHistoryEvent, 
-    RotationalHistoryEvent);
+    RotationalHistoryEvent,
+    SelectedHistoryEvent,
+    SelectionModifiedHistoryEvent,
+    DeselectedHistoryEvent);
 
 history : History(HistoricalEvent) = ---;
 

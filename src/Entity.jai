@@ -53,13 +53,15 @@ add_entity :: () -> *Entity {
         id = next_id,
         pos = pointer_world_pos
     });
+
+    entity.locator = locator;
+    table_add(*entity_by_id, next_id, entity);
     
     // record history
-
-    table_add(*entity_by_id, next_id, entity);    
-    entity.locator = locator;
     
     next_id += 1;
+
+    select_entity(entity);
     return entity;
 }
 

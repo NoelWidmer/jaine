@@ -9,18 +9,83 @@ try_select_entity :: () -> bool {
         quad := get_entity_quad(it);
 
         if is_inside_quad(pointer_world_pos, quad) {
-            if selected != it {
-                // record history
-                selected = it;
-            }
-
+            select_entity(it);
             return true;
         }
     }
 
-    // record history
-    selected = null;
+    deselect_entity();
     return false;
+}
+
+select_entity :: (entity: *Entity) {
+    if selected == entity return;
+
+    // history
+    {
+        event : HistoricalEvent;
+
+        if selected == null
+            then set(*event, SelectedHistoryEvent.{ entity.id });
+            else set(*event, SelectionModifiedHistoryEvent.{ selected.id, entity.id });
+
+        record(*history, event);
+    }
+
+    selected = entity;
+}
+
+deselect_entity :: () {
+    if selected == null return;
+    
+    // history
+    {
+        event : HistoricalEvent;
+        set(*event, DeselectedHistoryEvent.{ selected.id });
+        record(*history, event);
+    }
+
+    selected = null;
+}
+
+SelectedHistoryEvent :: struct {
+    selected: u64;
+}
+
+SelectionModifiedHistoryEvent :: struct {
+    prev_selected: u64;
+    selected: u64;
+}
+
+DeselectedHistoryEvent :: struct {
+    selected: u64;
+}
+
+undo :: (event: SelectedHistoryEvent, undo: bool) {
+    if undo {
+        selected = null;
+    } else {
+        selected = get_entity(event.selected);
+        assert(selected != null, "could not redo select and select entity with id %", event.selected);
+    }    
+}
+
+undo :: (event: SelectionModifiedHistoryEvent, undo: bool) {
+    id := ifx undo 
+        then event.prev_selected 
+        else event.selected;
+
+    selected = get_entity(id);
+    assert(selected != null, "could not modify selection and select entity with id %", id);  
+}
+
+undo :: (event: DeselectedHistoryEvent, undo: bool) {
+    if undo {
+        selected = get_entity(event.selected);
+        assert(selected != null, "could not undo deselect and select entity with id %", event.selected);
+    } else {
+        selected = null;
+    }   
 }
 
 delete_selected :: () {

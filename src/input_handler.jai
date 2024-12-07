@@ -53,6 +53,24 @@ on_history :: (ev: Event) {
             undo(rotational, !shift);
             return;
         }
+        
+        selectional := isa(event, SelectedHistoryEvent);
+        if selectional {
+            undo(selectional, !shift);
+            return;
+        }
+        
+        selection_modified := isa(event, SelectionModifiedHistoryEvent);
+        if selection_modified {
+            undo(selection_modified, !shift);
+            return;
+        }
+        
+        deselectional := isa(event, DeselectedHistoryEvent);
+        if deselectional {
+            undo(deselectional, !shift);
+            return;
+        }
     }
 }
 
