@@ -4,8 +4,10 @@
 #import "Input";
 #import "Tagged_Union";
 
-#load "PositionalGizmo.jai";
-#load "RotationalGizmo.jai";
+#load "Gizmos/gizmo.jai";
+#load "Gizmos/PositionalGizmo.jai";
+#load "Gizmos/RotationalGizmo.jai";
+
 #load "draw.jai";
 #load "camera.jai";
 #load "window.jai";
@@ -15,19 +17,9 @@
 #load "input_handler.jai";
 #load "math.jai";
 #load "tool.jai";
-#load "gizmo.jai";
 #load "res.jai";
 #load "CircularStack.jai";
 #load "history.jai";
-
-HistoricalEvent :: Tagged_Union(
-    PositionalHistoryEvent, 
-    RotationalHistoryEvent,
-    SelectedHistoryEvent,
-    SelectionModifiedHistoryEvent,
-    DeselectedHistoryEvent);
-
-history : History(HistoricalEvent) = ---;
 
 main :: () {
     create_window();

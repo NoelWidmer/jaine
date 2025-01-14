@@ -6,7 +6,7 @@ pointer_world_pos : Vector2;
 
 pointer_delta : Vector2;
 
-invalidate_pointer_screen_position :: () {
+invalidate_pointer_screen_pos :: () {
     if input_application_has_focus {
         x, y, success := get_mouse_pointer_position(window, true);
 

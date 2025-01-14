@@ -19,12 +19,10 @@ update_window :: () {
     for get_window_resizes() {
         Simp.update_window(it.window);
         
-        if it.window == window {
-            on_window_size_changed_internal(it.width, it.height);
-        }
+        if it.window == window then on_window_size_changed_internal(it.width, it.height);
     }
     
-    invalidate_pointer_screen_position();
+    invalidate_pointer_screen_pos();
         
     for events_this_frame {
         type := it.type;
@@ -33,14 +31,12 @@ update_window :: () {
             case .QUIT; quit();
             case .KEYBOARD;
             {
-                if it.repeat return;                
+                if it.repeat return;        
+
                 key := it.key_code;
                 
                 if key == .F11 {
-                    if it.key_pressed {
-                        toggle_fullscreen();
-                        invalidate_pointer_screen_position();
-                    }
+                    if it.key_pressed && toggle_fullscreen() then invalidate_pointer_screen_pos();
                 } else if key == .MOUSE_BUTTON_LEFT {
                     on_mouse_left(it);
                 } else if key == .MOUSE_BUTTON_RIGHT {
@@ -65,16 +61,6 @@ update_window :: () {
     }
 }
 
-toggle_fullscreen :: () {
-    new_state := !is_fullscreen;    
-    success, width, height := toggle_fullscreen(window, new_state, *prev_window_info);
-
-    if success {
-        is_fullscreen = new_state;
-        on_window_size_changed_internal(width, height);
-    }
-}
-
 #scope_file
 
 Vector32s :: struct {
@@ -83,10 +69,22 @@ Vector32s :: struct {
 }
 
 is_fullscreen : bool;
-viewport_pixel_size : Vector32s;
+viewport_screen_size : Vector32s;
 prev_window_info : Saved_Window_Info;
 
+toggle_fullscreen :: () -> bool {
+    new_state := !is_fullscreen;    
+    success, width, height := toggle_fullscreen(window, new_state, *prev_window_info);
+
+    if success {
+        is_fullscreen = new_state;
+        on_window_size_changed_internal(width, height);
+    }
+
+    return success;
+}
+
 on_window_size_changed_internal :: (width: s32, height: s32) {
-    viewport_pixel_size = .{ width, height };
+    viewport_screen_size = .{ width, height };
     on_window_size_changed(width, height);
 }

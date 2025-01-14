@@ -1,25 +1,10 @@
 RotationalGizmo :: struct {
-    pos: Vector2;
-    right: Vector2;
-    up: Vector2;
     grabbed: bool;
     pending: float;
 }
 
-new_rotational_gizmo :: (gizmo: *RotationalGizmo, pos: Vector2, right: Vector2) {
-    up := rotate_dir_90_deg_ccw(right);
-
-    <<gizmo = .{ 
-        pos, 
-        right,
-        up,
-        gizmo.grabbed, 
-        gizmo.pending
-    };
-}
-
-draw_rotational_gizmo :: (gizmo: RotationalGizmo) {
-    center := gizmo.pos;
+draw_rotational_gizmo :: (gizmo: *RotationalGizmo, center: Vector2, dir_x: Vector2) {
+    dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     if gizmo.grabbed {
         center_to_grab_dir := normalize(left_pressed_world_pos - center);
@@ -40,14 +25,14 @@ draw_rotational_gizmo :: (gizmo: RotationalGizmo) {
         // to pointer
         draw_world_line(center, pointer_world_pos, 1, color_gizmo_interactive);
     } else {
-        draw_partial_circle_world_outline(center, gizmo.up, inner_radius, 90, 12, gizmo_interaction_size * .5, color_gizmo_blue);
+        draw_partial_circle_world_outline(center, dir_y, inner_radius, 90, 12, gizmo_interaction_size * .5, color_gizmo_blue);
     }
 
-    draw_gizmo_axis(center, gizmo.up, gizmo.right);
+    draw_gizmo_axis(center, dir_y, dir_x);
 }
 
-try_begin_gizmo_grab :: (gizmo: *RotationalGizmo) -> bool {
-    dist := distance(pointer_world_pos, gizmo.pos);
+try_begin_gizmo_grab :: (gizmo: *RotationalGizmo, center: Vector2) -> bool {
+    dist := distance(pointer_world_pos, center);
 
     if dist > outer_radius return false;
 

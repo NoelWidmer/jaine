@@ -11,7 +11,7 @@ on_mouse_left :: (ev: Event) {
         if is_left_grab {
             is_left_grab = false;
         } else {
-            try_select_entity();
+            try_select_entity_under_pointer();
         }
     }
 }

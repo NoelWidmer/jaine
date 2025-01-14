@@ -8,14 +8,15 @@ get_selected_tool :: () -> Tool {
 }
 
 switch_tool :: () {
-    if selected_tool == last_tool 
+    tool_type_info :: type_info(Tool);
+    first_tool :: #run tool_type_info.values[0];
+    last_tool :: #run tool_type_info.values[tool_type_info.values.count - 1];
+
+    if selected_tool == last_tool
       then selected_tool = first_tool;
       else selected_tool += 1;
 }
 
 #scope_file
-
-first_tool :: Tool.Move;
-last_tool :: Tool.Rotate;
 
 selected_tool : Tool;

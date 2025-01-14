@@ -1,7 +1,6 @@
 PositionalGizmo :: struct {
-    pos: Vector2;
-    right: Vector2;
-    up: Vector2;
+    dir_x: Vector2;
+    dir_y: Vector2;
     tri_x: Tri;
     tri_y: Tri;
     quad_xy: Quad;
@@ -16,7 +15,7 @@ PositionalGizmoMode :: enum u8 {
     XY;
 }
 
-new_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) {
+draw_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     tri_x : Tri = ---;
@@ -59,7 +58,6 @@ new_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) 
     }
 
     <<gizmo = .{
-        pos,
         dir_x, 
         dir_y,
         tri_x,
@@ -68,38 +66,37 @@ new_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) 
         gizmo.mode, 
         gizmo.pending
     };
-}
 
-draw_positional_gizmo :: (gizmo: PositionalGizmo) {
-    pos := gizmo.pos;
-
-    draw_gizmo_axis(pos, gizmo.up, gizmo.right);
-
-    // x
+    // draw
     {
-        color := ifx gizmo.mode == PositionalGizmoMode.X 
-            then color_gizmo_interactive
-            else color_gizmo_red;
-        
-        draw_world_tri(gizmo.tri_x, color);
-    }
-    
-    // y
-    {
-        color := ifx gizmo.mode == PositionalGizmoMode.Y
-            then color_gizmo_interactive
-            else color_gizmo_green;
+        draw_gizmo_axis(pos, dir_y, dir_x);
+
+        // x
+        {
+            color := ifx gizmo.mode == PositionalGizmoMode.X 
+                then color_gizmo_interactive
+                else color_gizmo_red;
             
-        draw_world_tri(gizmo.tri_y, color);
-    }
+            draw_world_tri(gizmo.tri_x, color);
+        }
+        
+        // y
+        {
+            color := ifx gizmo.mode == PositionalGizmoMode.Y
+                then color_gizmo_interactive
+                else color_gizmo_green;
+                
+            draw_world_tri(gizmo.tri_y, color);
+        }
 
-    // xy
-    {
-        color := ifx gizmo.mode == PositionalGizmoMode.XY
-            then color_gizmo_interactive
-            else color_gizmo_blue;
+        // xy
+        {
+            color := ifx gizmo.mode == PositionalGizmoMode.XY
+                then color_gizmo_interactive
+                else color_gizmo_blue;
 
-        draw_world_quad(gizmo.quad_xy, color);
+            draw_world_quad(gizmo.quad_xy, color);
+        }
     }
 }
 
@@ -130,8 +127,8 @@ try_drag_gizmo :: (gizmo: *PositionalGizmo) {
 
     delta_pos : Vector2;
     if gizmo.mode == {
-        case PositionalGizmoMode.X; delta_pos = project(pointer_delta, gizmo.right);
-        case PositionalGizmoMode.Y; delta_pos = project(pointer_delta, gizmo.up);
+        case PositionalGizmoMode.X; delta_pos = project(pointer_delta, gizmo.dir_x);
+        case PositionalGizmoMode.Y; delta_pos = project(pointer_delta, gizmo.dir_y);
         case PositionalGizmoMode.XY; delta_pos = pointer_delta;
     }
 
