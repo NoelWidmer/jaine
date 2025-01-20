@@ -47,7 +47,7 @@ try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *RotationalGizmo, center: Vector2
 try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo) {
     if !gizmo.grabbed || !vp.has_pointer_moved return;
 
-    selected_screen_pos := world_to_screen_pos(cam, cam.selected.pos);
+    selected_screen_pos := world_to_screen_pos(cam, cam.selection.entity.pos);
 
     from := normalize(vp.last_pointer_screen_pos - selected_screen_pos);
     to := normalize(vp.pointer_screen_pos - selected_screen_pos);
@@ -65,7 +65,7 @@ try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo) {
         else delta_theta = -theta;
 
     gizmo.pending += delta_theta;
-    cam.selected.theta += delta_theta;
+    cam.selection.entity.theta += delta_theta;
 }
 
 release_gizmo :: (cam: *Camera, gizmo: *RotationalGizmo) {
@@ -73,7 +73,7 @@ release_gizmo :: (cam: *Camera, gizmo: *RotationalGizmo) {
 
     if gizmo.pending != 0 {
         event : HistoricalEvent;
-        set(*event, RotationalHistoryEvent.{ cam.selected.id, gizmo.pending });
+        set(*event, RotationalHistoryEvent.{ cam.selection.entity.id, gizmo.pending });
         record(*history, event);
 
         gizmo.pending = 0;

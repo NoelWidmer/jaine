@@ -122,7 +122,7 @@ try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *PositionalGizmo) -> bool {
 try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *PositionalGizmo) {
     if gizmo.mode == PositionalGizmoMode.None return;
 
-    world_pos := cam.selected.pos;
+    world_pos := cam.selection.entity.pos;
 
     delta_pos : Vector2;
     if gizmo.mode == {
@@ -132,7 +132,7 @@ try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *PositionalGizmo) {
     }
 
     gizmo.pending += delta_pos;
-    cam.selected.pos += delta_pos;
+    cam.selection.entity.pos += delta_pos;
 }
 
 release_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo) {
@@ -140,7 +140,7 @@ release_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo) {
 
     if gizmo.pending != .{ 0, 0 } {
         event : HistoricalEvent;
-        set(*event, PositionalHistoryEvent.{ cam.selected.id, gizmo.pending });
+        set(*event, PositionalHistoryEvent.{ cam.selection.entity.id, gizmo.pending });
         record(*history, event);
 
         gizmo.pending = .{ 0, 0 };

@@ -2,7 +2,7 @@ Camera :: struct {
     world_pos : Vector2;
     bottom_left_world_pos : Vector2;
     tool: Tool;
-    selected : *Entity;
+    selection : Selection;
     is_global : bool;
 }
 
@@ -16,7 +16,7 @@ new_camera :: () -> Camera {
         .{},
         .{},
         Tool.Move, 
-        null,
+        .{ null, .{} },
         true
     };
 }

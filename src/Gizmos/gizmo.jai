@@ -1,3 +1,8 @@
+Gizmo :: union { 
+  vector2: PositionalGizmo; 
+  theta: RotationalGizmo;
+}
+
 gizmo_length :: 100;
 gizmo_interaction_size :: gizmo_length * .2;
 
