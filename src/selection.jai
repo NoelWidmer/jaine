@@ -100,27 +100,27 @@ delete_selected :: (cam: *Camera) {
 try_grab_selected_gizmo :: (vp: *Viewport, cam: *Camera) {
     if cam.selection.entity == null return;
     
-    if gizmo_kind == {
-        case GizmoKind.Vector2; try_begin_gizmo_grab(vp, *cam.selection.gizmo.vector2);
-        case GizmoKind.Theta; try_begin_gizmo_grab(vp, *cam.selection.gizmo.theta, cam.selection.entity.pos);
+    if cam.tool == {
+        case Tool.Move; try_begin_gizmo_grab(vp, *cam.selection.gizmo.vector2);
+        case Tool.Rotate; try_begin_gizmo_grab(vp, *cam.selection.gizmo.theta, cam.selection.entity.pos);
     }
 }
 
 try_drag_selected_gizmo :: (vp: *Viewport, cam: *Camera) {
     if cam.selection.entity == null return;
     
-    if gizmo_kind == {
-        case GizmoKind.Vector2; try_drag_gizmo(vp, cam, *cam.selection.gizmo.vector2);
-        case GizmoKind.Theta; try_drag_gizmo(vp, cam, *cam.selection.gizmo.theta);
+    if cam.tool == {
+        case Tool.Move; try_drag_gizmo(vp, cam, *cam.selection.gizmo.vector2);
+        case Tool.Rotate; try_drag_gizmo(vp, cam, *cam.selection.gizmo.theta);
     }
 }
 
 release_selected_gizmo :: (cam: *Camera) {
     if cam.selection.entity == null return;
 
-    if gizmo_kind == {
-        case GizmoKind.Vector2; release_gizmo(cam, *cam.selection.gizmo.vector2);
-        case GizmoKind.Theta; release_gizmo(cam, *cam.selection.gizmo.theta);
+    if cam.tool == {
+        case Tool.Move; release_gizmo(cam, *cam.selection.gizmo.vector2);
+        case Tool.Rotate; release_gizmo(cam, *cam.selection.gizmo.theta);
     }
 }
 
@@ -134,28 +134,7 @@ draw_selection_gizmo :: (vp: *Viewport, cam: *Camera) {
         else get_entity_right(cam.selection.entity); 
     
     if cam.tool == {
-        case Tool.Move;
-            if gizmo_kind != GizmoKind.Vector2 {
-                cam.selection.gizmo.vector2 = .{};
-                gizmo_kind = GizmoKind.Vector2;
-            }
-
-            draw_positional_gizmo(cam, *cam.selection.gizmo.vector2, cam.selection.entity.pos, right);
-        case Tool.Rotate;
-            if gizmo_kind != GizmoKind.Theta {
-                cam.selection.gizmo.theta = .{};
-                gizmo_kind = GizmoKind.Theta;
-            }
-
-            draw_rotational_gizmo(vp, cam, *cam.selection.gizmo.theta, cam.selection.entity.pos, right);
+        case Tool.Move; draw_positional_gizmo(cam, *cam.selection.gizmo.vector2, cam.selection.entity.pos, right);
+        case Tool.Rotate; draw_rotational_gizmo(vp, cam, *cam.selection.gizmo.theta, cam.selection.entity.pos, right);
     }
-}
-
-#scope_file
-
-gizmo_kind : GizmoKind;
-
-GizmoKind :: enum u8 {
-  Vector2;
-  Theta;
 }

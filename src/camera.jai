@@ -38,11 +38,16 @@ update_cam :: (vp: *Viewport, cam: *Camera) {
 }
 
 switch_tool :: (cam: *Camera) {
-    tool_type_info :: type_info(Tool);
+    tool_type_info :: type_info(Tool);    
     first_tool :: #run tool_type_info.values[0];
     last_tool :: #run tool_type_info.values[tool_type_info.values.count - 1];
 
     if cam.tool == last_tool
       then cam.tool = first_tool;
       else cam.tool += 1;
+
+    if cam.tool == {
+        case Tool.Move; cam.selection.gizmo.vector2 = .{};
+        case Tool.Rotate; cam.selection.gizmo.theta = .{};
+    }
 }
