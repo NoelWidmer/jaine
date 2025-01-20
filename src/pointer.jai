@@ -6,10 +6,10 @@ pointer_world_pos : Vector2;
 
 pointer_delta : Vector2;
 
-invalidate_pointer_screen_pos :: (window: *Window, cam: *Camera) {
+invalidate_pointer_screen_pos :: (vp: *Viewport, cam: *Camera) {
     if !input_application_has_focus then return;
     
-    x, y, success := get_mouse_pointer_position(window.type, true);
+    x, y, success := get_mouse_pointer_position(vp.window, true);
 
     if success {
         last_pointer_screen_pos = pointer_screen_pos;

@@ -1,36 +1,36 @@
-Window :: struct {
-    type : Window_Type;
+Viewport :: struct {
+    window : Window_Type;
     is_fullscreen : bool;
     prev_info : Saved_Window_Info;
     screen_size : Vector32s;
     world_size: Vector2;
 }
 
-create_window :: () -> Window {
-    window_width : s32 = 1920 / 2;
-    window_height : s32 = 1080 / 2;
+create_viewport :: () -> Viewport {
+    vp_width : s32 = 1920 / 2;
+    vp_height : s32 = 1080 / 2;
 
-    window: Window;
-    window.type = create_window(
+    vp: Viewport;
+    vp.window = create_window(
         window_name = "Jaine", 
-        width = window_width, 
-        height = window_height);
+        width = vp_width, 
+        height = vp_height);
         
-    on_window_size_changed(*window, window_width, window_height);
+    on_viewport_size_changed(*vp, vp_width, vp_height);
 
-    return window;
+    return vp;
 }
 
-update_window :: (window: *Window, cam: *Camera) {
+update_viewport :: (vp: *Viewport, cam: *Camera) {
     update_window_events();
 
     for get_window_resizes() {
         Simp.update_window(it.window);
         
-        if it.window == window.type then on_window_size_changed(window, it.width, it.height);
+        if it.window == vp.window then on_viewport_size_changed(vp, it.width, it.height);
     }
     
-    invalidate_pointer_screen_pos(window, cam);
+    invalidate_pointer_screen_pos(vp, cam);
         
     for events_this_frame {
         type := it.type;
@@ -44,7 +44,7 @@ update_window :: (window: *Window, cam: *Camera) {
                 key := it.key_code;
                 
                 if key == .F11 {
-                    if it.key_pressed && toggle_fullscreen(window) then invalidate_pointer_screen_pos(window, cam);
+                    if it.key_pressed && toggle_fullscreen(vp) then invalidate_pointer_screen_pos(vp, cam);
                 } else if key == .MOUSE_BUTTON_LEFT {
                     on_mouse_left(cam, it);
                 } else if key == .MOUSE_BUTTON_RIGHT {
@@ -76,19 +76,19 @@ Vector32s :: struct {
     y : s32;
 }
 
-toggle_fullscreen :: (window: *Window) -> bool {
-    new_state := !window.is_fullscreen;    
-    success, width, height := toggle_fullscreen(window.type, new_state, *window.prev_info);
+toggle_fullscreen :: (vp: *Viewport) -> bool {
+    new_state := !vp.is_fullscreen;    
+    success, width, height := toggle_fullscreen(vp.window, new_state, *vp.prev_info);
 
     if success {
-        window.is_fullscreen = new_state;
-        on_window_size_changed(window, width, height);
+        vp.is_fullscreen = new_state;
+        on_viewport_size_changed(vp, width, height);
     }
 
     return success;
 }
 
-on_window_size_changed :: (window: *Window, width: s32, height: s32) {
-    window.screen_size = .{ width, height };
-    window.world_size = .{ xx width, xx height };
+on_viewport_size_changed :: (vp: *Viewport, width: s32, height: s32) {
+    vp.screen_size = .{ width, height };
+    vp.world_size = .{ xx width, xx height };
 }

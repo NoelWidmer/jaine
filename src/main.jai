@@ -22,8 +22,8 @@
 #load "history.jai";
 
 main :: () {
-    window := create_window();
-    Simp.set_render_target(window.type);
+    vp := create_viewport();
+    Simp.set_render_target(vp.window);
 
     load_res();
 
@@ -35,9 +35,9 @@ main :: () {
     while !quit {
         reset_temporary_storage();   
          
-        update_window(*window, *cam);
+        update_viewport(*vp, *cam);
         update_input(*cam);
-        update_cam(*window, *cam);
+        update_cam(*vp, *cam);
 
         // render
         {
@@ -50,7 +50,7 @@ main :: () {
             draw_selection_gizmo(*cam);
         }
 
-        Simp.swap_buffers(window.type);
+        Simp.swap_buffers(vp.window);
         
         // update time
         {

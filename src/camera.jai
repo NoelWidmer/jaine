@@ -15,6 +15,6 @@ move_camera :: (cam: *Camera, delta_pos: Vector2) {
     cam.world_pos += delta_pos;
 }
 
-update_cam :: (window: *Window, cam: *Camera) {
-    cam.bottom_left_world_pos = cam.world_pos - window.world_size * .5;
+update_cam :: (vp: *Viewport, cam: *Camera) {
+    cam.bottom_left_world_pos = cam.world_pos - vp.world_size * .5;
 }
