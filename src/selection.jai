@@ -139,7 +139,7 @@ draw_selection_gizmo :: (vp: *Viewport, cam: *Camera) {
         then Vector2.{ 1, 0 }
         else get_entity_right(selected); 
     
-    if get_selected_tool() == {
+    if cam.tool == {
         case Tool.Move;
             if gizmo_kind != GizmoKind.Vector2 {
                 gizmo.vector2 = .{};

@@ -1,6 +1,12 @@
 Camera :: struct {
     world_pos : Vector2;
     bottom_left_world_pos : Vector2;
+    tool: Tool;
+}
+
+Tool :: enum u8 {
+  Move;
+  Rotate;
 }
 
 world_to_screen_pos :: (cam: *Camera, world_pos: Vector2) -> Vector2 {
@@ -17,4 +23,14 @@ move_camera :: (cam: *Camera, delta_pos: Vector2) {
 
 update_cam :: (vp: *Viewport, cam: *Camera) {
     cam.bottom_left_world_pos = cam.world_pos - vp.world_size * .5;
+}
+
+switch_tool :: (cam: *Camera) {
+    tool_type_info :: type_info(Tool);
+    first_tool :: #run tool_type_info.values[0];
+    last_tool :: #run tool_type_info.values[tool_type_info.values.count - 1];
+
+    if cam.tool == last_tool
+      then cam.tool = first_tool;
+      else cam.tool += 1;
 }

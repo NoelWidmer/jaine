@@ -15,7 +15,6 @@
 #load "selection.jai";
 #load "input_handler.jai";
 #load "math.jai";
-#load "tool.jai";
 #load "res.jai";
 #load "CircularStack.jai";
 #load "history.jai";

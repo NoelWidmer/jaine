@@ -108,8 +108,8 @@ on_a :: (vp: *Viewport, ev: Event) {
     if shift && ev.key_pressed then add_entity(vp);
 }
 
-on_tool :: (ev: Event) {
-    if !ev.key_pressed then switch_tool();
+on_tool :: (cam: *Camera, ev: Event) {
+    if !ev.key_pressed then switch_tool(cam);
 }
 
 on_global_local :: (ev: Event) {
