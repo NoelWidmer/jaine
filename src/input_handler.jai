@@ -1,4 +1,4 @@
-on_mouse_left :: (vp: *Viewport, cam: *Camera, ev: Event) {
+on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, ev: Event) {
     if ev.key_pressed {
         is_left_mouse_pressed = true;
         left_pressed_screen_pos = vp.pointer_screen_pos;
@@ -11,7 +11,7 @@ on_mouse_left :: (vp: *Viewport, cam: *Camera, ev: Event) {
         if is_left_grab {
             is_left_grab = false;
         } else {
-            try_select_entity_under_pointer(vp, cam);
+            try_select_entity_under_pointer(vp, cam, world);
         }
     }
 }
@@ -32,7 +32,7 @@ on_mouse_right :: (vp: *Viewport, cam: *Camera, ev: Event) {
     }
 }
 
-on_history :: (cam: *Camera, ev: Event) {
+on_history :: (cam: *Camera, world: *World, ev: Event) {
     if ctrl {
         if ev.key_pressed then return;
         
@@ -44,31 +44,31 @@ on_history :: (cam: *Camera, ev: Event) {
 
         positional := isa(event, PositionalHistoryEvent);
         if positional {
-            undo(positional, !shift);
+            undo(positional, !shift, world);
             return;
         }
         
         rotational := isa(event, RotationalHistoryEvent);
         if rotational {
-            undo(rotational, !shift);
+            undo(rotational, !shift, world);
             return;
         }
         
         selectional := isa(event, SelectedHistoryEvent);
         if selectional {
-            undo(cam, selectional, !shift);
+            undo(cam, selectional, !shift, world);
             return;
         }
         
         selection_modified := isa(event, SelectionModifiedHistoryEvent);
         if selection_modified {
-            undo(cam, selection_modified, !shift);
+            undo(cam, selection_modified, !shift, world);
             return;
         }
         
         deselectional := isa(event, DeselectedHistoryEvent);
         if deselectional {
-            undo(cam, deselectional, !shift);
+            undo(cam, deselectional, !shift, world);
             return;
         }
     }
@@ -79,8 +79,8 @@ PositionalHistoryEvent :: struct {
     delta: Vector2;
 }
 
-undo :: (event: PositionalHistoryEvent, undo: bool) {
-    entity := get_entity(event.entity_id);
+undo :: (event: PositionalHistoryEvent, undo: bool, world: *World) {
+    entity := get_entity(world, event.entity_id);
     assert(entity != null, "could not modify history for entity with id %", event.entity_id);
     entity.pos += ifx undo then -event.delta else event.delta;
 }
@@ -90,8 +90,8 @@ RotationalHistoryEvent :: struct {
     delta: float;
 }
 
-undo :: (event: RotationalHistoryEvent, undo: bool) {
-    entity := get_entity(event.entity_id);
+undo :: (event: RotationalHistoryEvent, undo: bool, world: *World) {
+    entity := get_entity(world, event.entity_id);
     assert(entity != null, "could not modify history for entity with id %", event.entity_id);
     entity.theta += ifx undo then -event.delta else event.delta;
 }
@@ -104,8 +104,8 @@ on_ctrl :: (ev: Event) {
     ctrl = ifx ev.key_pressed then true else false;
 }
 
-on_a :: (vp: *Viewport, cam: *Camera, ev: Event) {
-    if shift && ev.key_pressed then add_entity(vp, cam);
+on_a :: (vp: *Viewport, cam: *Camera, world: *World, ev: Event) {
+    if shift && ev.key_pressed then add_entity(vp, cam, world);
 }
 
 on_tool :: (cam: *Camera, ev: Event) {
@@ -116,8 +116,8 @@ on_global_local :: (cam: *Camera, ev: Event) {
     if !ev.key_pressed then cam.is_global = !cam.is_global;
 }
 
-on_delete :: (cam: *Camera, ev: Event) {
-    if !ev.key_pressed delete_selected(cam);    
+on_delete :: (cam: *Camera, world: *World, ev: Event) {
+    if !ev.key_pressed delete_selected(cam, world);    
 }
 
 update_input :: (vp: *Viewport, cam: *Camera) {

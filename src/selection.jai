@@ -3,8 +3,8 @@ Selection :: struct {
     gizmo: Gizmo;
 }
 
-try_select_entity_under_pointer :: (vp: *Viewport, cam: *Camera) -> bool {
-    for *entities {
+try_select_entity_under_pointer :: (vp: *Viewport, cam: *Camera, world: *World) -> bool {
+    for *world.entities {
         quad := get_entity_quad(it);
 
         if is_inside_quad(vp.pointer_world_pos, quad) {
@@ -39,11 +39,11 @@ SelectedHistoryEvent :: struct {
 }
 
 // TOOD: the camera context should be part of the history record.
-undo :: (cam: *Camera, event: SelectedHistoryEvent, undo: bool) {
+undo :: (cam: *Camera, event: SelectedHistoryEvent, undo: bool, world: *World) {
     if undo {
         cam.selection.entity = null;
     } else {
-        cam.selection.entity = get_entity(event.selected);
+        cam.selection.entity = get_entity(world, event.selected);
         assert(cam.selection.entity != null, "could not redo select to select entity with id %", event.selected);
     }    
 }
@@ -54,12 +54,12 @@ SelectionModifiedHistoryEvent :: struct {
 }
 
 // TOOD: the camera context should be part of the history record.
-undo :: (cam: *Camera, event: SelectionModifiedHistoryEvent, undo: bool) {
+undo :: (cam: *Camera, event: SelectionModifiedHistoryEvent, undo: bool, world: *World) {
     id := ifx undo 
         then event.prev_selected 
         else event.selected;
 
-    cam.selection.entity = get_entity(id);
+    cam.selection.entity = get_entity(world, id);
     assert(cam.selection.entity != null, "could not modify selection to select entity with id %", id);  
 }
 
@@ -81,19 +81,19 @@ DeselectedHistoryEvent :: struct {
 }
 
 // TOOD: the camera context should be part of the history record.
-undo :: (cam: *Camera, event: DeselectedHistoryEvent, undo: bool) {
+undo :: (cam: *Camera, event: DeselectedHistoryEvent, undo: bool, world: *World) {
     if undo {
-        cam.selection.entity = get_entity(event.selected);
+        cam.selection.entity = get_entity(world, event.selected);
         assert(cam.selection.entity != null, "could not undo deselect to select entity with id %", event.selected);
     } else {
         cam.selection.entity = null;
     }   
 }
 
-delete_selected :: (cam: *Camera) {
+delete_selected :: (cam: *Camera, world: *World) {
     if cam.selection.entity == null return;
     // TODO history
-    remove_entity(cam.selection.entity);
+    remove_entity(cam.selection.entity, world);
     cam.selection.entity = null;
 }
 

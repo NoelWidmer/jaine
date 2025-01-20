@@ -8,6 +8,7 @@
 #load "Gizmos/PositionalGizmo.jai";
 #load "Gizmos/RotationalGizmo.jai";
 
+#load "World.jai";
 #load "draw.jai";
 #load "camera.jai";
 #load "Viewport.jai";
@@ -29,11 +30,12 @@ main :: () {
     last_time = seconds_since_init();
 
     cam := new_camera();
+    world := new_world();
 
     while !quit {
         reset_temporary_storage();   
          
-        update_viewport(*vp, *cam);
+        update_viewport(*vp, *cam, *world);
         update_input(*vp, *cam);
         update_cam(*vp, *cam);
 
@@ -44,7 +46,7 @@ main :: () {
                 Simp.clear_render_target(background_color.x, background_color.y, background_color.z, 1);
             }
 
-            draw_entities(*cam);
+            draw_entities(*cam, *world);
             draw_selection_gizmo(*vp, *cam);
         }
 
