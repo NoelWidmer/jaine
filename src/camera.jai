@@ -2,6 +2,7 @@ Camera :: struct {
     world_pos : Vector2;
     bottom_left_world_pos : Vector2;
     tool: Tool;
+    selected : *Entity;
 }
 
 Tool :: enum u8 {

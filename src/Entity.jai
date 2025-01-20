@@ -48,7 +48,7 @@ get_entity_quad :: (entity: Entity) -> Quad {
     return .{ v1, v2, v3, v4 };
 }
 
-add_entity :: (vp: *Viewport) -> *Entity {
+add_entity :: (vp: *Viewport, cam: *Camera) -> *Entity {
     locator, entity := bucket_array_add(*entities, .{
         id = next_id,
         pos = vp.pointer_world_pos
@@ -61,7 +61,7 @@ add_entity :: (vp: *Viewport) -> *Entity {
     
     next_id += 1;
 
-    select_entity(entity);
+    select_entity(cam, entity);
     return entity;
 }
 

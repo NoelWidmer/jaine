@@ -61,15 +61,15 @@ update_viewport :: (vp: *Viewport, cam: *Camera) {
                 } else if key == .MOUSE_BUTTON_RIGHT {
                     on_mouse_right(vp, cam, it);
                 } else if key == xx #char "A" {
-                    on_a(vp, it);
+                    on_a(vp, cam, it);
                 } else if key == xx #char "T" {
                     on_tool(cam, it);
                 } else if key == xx #char "X" {
                     on_global_local(it);
                 } else if key == xx #char "Z" {
-                    on_history(it);
+                    on_history(cam, it);
                 } else if key == .DELETE {
-                    on_delete(it);
+                    on_delete(cam, it);
                 } else if key == .SHIFT {
                     on_shift(it);
                 } else if key == .CTRL {

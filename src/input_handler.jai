@@ -3,15 +3,15 @@ on_mouse_left :: (vp: *Viewport, cam: *Camera, ev: Event) {
         is_left_mouse_pressed = true;
         left_pressed_screen_pos = vp.pointer_screen_pos;
         left_pressed_world_pos = screen_to_world_pos(cam, left_pressed_screen_pos);
-        try_grab_selected_gizmo(vp);
+        try_grab_selected_gizmo(vp, cam);
     } else {
         is_left_mouse_pressed = false;
-        release_selected_gizmo();
+        release_selected_gizmo(cam);
 
         if is_left_grab {
             is_left_grab = false;
         } else {
-            try_select_entity_under_pointer(vp);
+            try_select_entity_under_pointer(vp, cam);
         }
     }
 }
@@ -32,7 +32,7 @@ on_mouse_right :: (vp: *Viewport, cam: *Camera, ev: Event) {
     }
 }
 
-on_history :: (ev: Event) {
+on_history :: (cam: *Camera, ev: Event) {
     if ctrl {
         if ev.key_pressed then return;
         
@@ -56,19 +56,19 @@ on_history :: (ev: Event) {
         
         selectional := isa(event, SelectedHistoryEvent);
         if selectional {
-            undo(selectional, !shift);
+            undo(cam, selectional, !shift);
             return;
         }
         
         selection_modified := isa(event, SelectionModifiedHistoryEvent);
         if selection_modified {
-            undo(selection_modified, !shift);
+            undo(cam, selection_modified, !shift);
             return;
         }
         
         deselectional := isa(event, DeselectedHistoryEvent);
         if deselectional {
-            undo(deselectional, !shift);
+            undo(cam, deselectional, !shift);
             return;
         }
     }
@@ -104,8 +104,8 @@ on_ctrl :: (ev: Event) {
     ctrl = ifx ev.key_pressed then true else false;
 }
 
-on_a :: (vp: *Viewport, ev: Event) {
-    if shift && ev.key_pressed then add_entity(vp);
+on_a :: (vp: *Viewport, cam: *Camera, ev: Event) {
+    if shift && ev.key_pressed then add_entity(vp, cam);
 }
 
 on_tool :: (cam: *Camera, ev: Event) {
@@ -116,8 +116,8 @@ on_global_local :: (ev: Event) {
     if !ev.key_pressed then switch_global_local();
 }
 
-on_delete :: (ev: Event) {
-    if !ev.key_pressed delete_selected();    
+on_delete :: (cam: *Camera, ev: Event) {
+    if !ev.key_pressed delete_selected(cam);    
 }
 
 update_input :: (vp: *Viewport, cam: *Camera) {
