@@ -94,14 +94,6 @@ delete_selected :: (cam: *Camera) {
     cam.selected = null;
 }
 
-switch_global_local :: () {
-    is_global_ = !is_global_;
-}
-
-is_global :: () -> bool {
-    return is_global_;
-}
-
 try_grab_selected_gizmo :: (vp: *Viewport, cam: *Camera) {
     if cam.selected == null return;
     
@@ -134,7 +126,7 @@ draw_selection_gizmo :: (vp: *Viewport, cam: *Camera) {
     
     Simp.set_shader_for_color();
 
-    right := ifx is_global() 
+    right := ifx cam.is_global
         then Vector2.{ 1, 0 }
         else get_entity_right(cam.selected); 
     
@@ -157,8 +149,6 @@ draw_selection_gizmo :: (vp: *Viewport, cam: *Camera) {
 }
 
 #scope_file
-
-is_global_ := true;
 
 gizmo_kind : GizmoKind;
 gizmo : Gizmo;

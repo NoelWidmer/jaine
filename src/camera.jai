@@ -3,11 +3,22 @@ Camera :: struct {
     bottom_left_world_pos : Vector2;
     tool: Tool;
     selected : *Entity;
+    is_global : bool;
 }
 
 Tool :: enum u8 {
   Move;
   Rotate;
+}
+
+new_camera :: () -> Camera {
+    return .{
+        .{},
+        .{},
+        Tool.Move, 
+        null,
+        true
+    };
 }
 
 world_to_screen_pos :: (cam: *Camera, world_pos: Vector2) -> Vector2 {

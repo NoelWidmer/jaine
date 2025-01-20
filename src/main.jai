@@ -28,7 +28,7 @@ main :: () {
     history = begin_history(HistoricalEvent);
     last_time = seconds_since_init();
 
-    cam : Camera;
+    cam := new_camera();
 
     while !quit {
         reset_temporary_storage();   

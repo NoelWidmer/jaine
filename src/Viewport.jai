@@ -65,7 +65,7 @@ update_viewport :: (vp: *Viewport, cam: *Camera) {
                 } else if key == xx #char "T" {
                     on_tool(cam, it);
                 } else if key == xx #char "X" {
-                    on_global_local(it);
+                    on_global_local(cam, it);
                 } else if key == xx #char "Z" {
                     on_history(cam, it);
                 } else if key == .DELETE {

@@ -112,8 +112,8 @@ on_tool :: (cam: *Camera, ev: Event) {
     if !ev.key_pressed then switch_tool(cam);
 }
 
-on_global_local :: (ev: Event) {
-    if !ev.key_pressed then switch_global_local();
+on_global_local :: (cam: *Camera, ev: Event) {
+    if !ev.key_pressed then cam.is_global = !cam.is_global;
 }
 
 on_delete :: (cam: *Camera, ev: Event) {
