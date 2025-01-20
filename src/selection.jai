@@ -112,12 +112,12 @@ try_grab_selected_gizmo :: () {
     }
 }
 
-try_drag_selected_gizmo :: () {
+try_drag_selected_gizmo :: (cam: *Camera) {
     if selected == null return;
     
     if gizmo_kind == {
         case GizmoKind.Vector2; try_drag_gizmo(*gizmo.vector2);
-        case GizmoKind.Theta; try_drag_gizmo(*gizmo.theta);
+        case GizmoKind.Theta; try_drag_gizmo(cam, *gizmo.theta);
     }
 }
 
@@ -130,7 +130,7 @@ release_selected_gizmo :: () {
     }
 }
 
-draw_selection_gizmo :: () {
+draw_selection_gizmo :: (cam: *Camera) {
     if selected == null return;
     
     Simp.set_shader_for_color();
@@ -146,14 +146,14 @@ draw_selection_gizmo :: () {
                 gizmo_kind = GizmoKind.Vector2;
             }
 
-            draw_positional_gizmo(*gizmo.vector2, selected.pos, right);
+            draw_positional_gizmo(cam, *gizmo.vector2, selected.pos, right);
         case Tool.Rotate;
             if gizmo_kind != GizmoKind.Theta {
                 gizmo.theta = .{};
                 gizmo_kind = GizmoKind.Theta;
             }
 
-            draw_rotational_gizmo(*gizmo.theta, selected.pos, right);
+            draw_rotational_gizmo(cam, *gizmo.theta, selected.pos, right);
     }
 }
 

@@ -13,7 +13,7 @@ create_window :: () {
     Simp.set_render_target(window);
 }
 
-update_window :: () {
+update_window :: (cam: *Camera) {
     update_window_events();
 
     for get_window_resizes() {
@@ -22,7 +22,7 @@ update_window :: () {
         if it.window == window then on_window_size_changed_internal(it.width, it.height);
     }
     
-    invalidate_pointer_screen_pos();
+    invalidate_pointer_screen_pos(cam);
         
     for events_this_frame {
         type := it.type;
@@ -36,11 +36,11 @@ update_window :: () {
                 key := it.key_code;
                 
                 if key == .F11 {
-                    if it.key_pressed && toggle_fullscreen() then invalidate_pointer_screen_pos();
+                    if it.key_pressed && toggle_fullscreen() then invalidate_pointer_screen_pos(cam);
                 } else if key == .MOUSE_BUTTON_LEFT {
-                    on_mouse_left(it);
+                    on_mouse_left(cam, it);
                 } else if key == .MOUSE_BUTTON_RIGHT {
-                    on_mouse_right(it);
+                    on_mouse_right(cam, it);
                 } else if key == xx #char "A" {
                     on_a(it);
                 } else if key == xx #char "T" {

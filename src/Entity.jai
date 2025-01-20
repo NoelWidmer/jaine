@@ -73,7 +73,7 @@ remove_entity :: (entity: *Entity) {
     bucket_array_remove(*entities, entity.locator);
 }
 
-draw_entities :: () {
+draw_entities :: (cam: *Camera) {
     color :: Vector4.{ 1, 1, 1, 1 };
     
     Simp.set_shader_for_images(*strawberry);
@@ -81,7 +81,7 @@ draw_entities :: () {
     for entities {
         if it.theta == 0 {
             size := get_entity_size();
-            draw_world_rect(it.pos, size);
+            draw_world_rect(cam, it.pos, size);
         } else {
                 uv :: Quad.{
                     .{ 0, 0 },
@@ -91,7 +91,7 @@ draw_entities :: () {
                 };
 
                 quad := get_entity_quad(it);
-                draw_world_quad_with_uv(quad, uv);
+                draw_world_quad_with_uv(cam, quad, uv);
             }
     }
 }

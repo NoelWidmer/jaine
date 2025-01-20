@@ -28,12 +28,14 @@ main :: () {
     history = begin_history(HistoricalEvent);
     last_time = seconds_since_init();
 
+    cam : Camera;
+
     while !quit {
         reset_temporary_storage();   
          
-        update_window();
-        update_input();
-        update_viewport();
+        update_window(*cam);
+        update_input(*cam);
+        update_cam(*cam);
 
         // render
         {
@@ -42,8 +44,8 @@ main :: () {
                 Simp.clear_render_target(background_color.x, background_color.y, background_color.z, 1);
             }
 
-            draw_entities();    
-            draw_selection_gizmo();
+            draw_entities(*cam);
+            draw_selection_gizmo(*cam);
         }
 
         Simp.swap_buffers(window);

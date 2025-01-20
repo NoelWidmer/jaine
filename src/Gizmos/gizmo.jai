@@ -7,9 +7,10 @@ color_gizmo_blue :: Vector4.{ 0, 0, 1, 1 };
 
 color_gizmo_interactive :: Vector4.{ 1, 1, 0, 1 };
 
-draw_gizmo_axis :: (pos: Vector2, up: Vector2, right: Vector2) {
+draw_gizmo_axis :: (cam: *Camera, pos: Vector2, up: Vector2, right: Vector2) {
     // x
     draw_world_vector(
+        cam,
         pos, 
         right * gizmo_length, 
         1,
@@ -17,6 +18,7 @@ draw_gizmo_axis :: (pos: Vector2, up: Vector2, right: Vector2) {
 
     // y
     draw_world_vector(
+        cam,
         pos - up * .5, 
         up * (gizmo_length + .5), 
         1,

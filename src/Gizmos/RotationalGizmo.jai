@@ -3,7 +3,7 @@ RotationalGizmo :: struct {
     pending: float;
 }
 
-draw_rotational_gizmo :: (gizmo: *RotationalGizmo, center: Vector2, dir_x: Vector2) {
+draw_rotational_gizmo :: (cam: *Camera, gizmo: *RotationalGizmo, center: Vector2, dir_x: Vector2) {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     if gizmo.grabbed {
@@ -16,19 +16,19 @@ draw_rotational_gizmo :: (gizmo: *RotationalGizmo, center: Vector2, dir_x: Vecto
             degrees := angle(center_to_grab_dir, center_to_pointer_dir);
             if dot(left, center_to_pointer_dir) > 0 then degrees = -degrees;
             segments := cast(u8) (abs(degrees) / 7);
-            draw_partial_circle_world_outline(center, center_to_grab_dir, outer_radius, degrees, segments, 1, color_gizmo_interactive);
+            draw_partial_circle_world_outline(cam, center, center_to_grab_dir, outer_radius, degrees, segments, 1, color_gizmo_interactive);
         }
 
         // to grab point
-        draw_world_vector(center, center_to_grab_dir * outer_radius, 1, color_gizmo_blue);
+        draw_world_vector(cam, center, center_to_grab_dir * outer_radius, 1, color_gizmo_blue);
 
         // to pointer
-        draw_world_line(center, pointer_world_pos, 1, color_gizmo_interactive);
+        draw_world_line(cam, center, pointer_world_pos, 1, color_gizmo_interactive);
     } else {
-        draw_partial_circle_world_outline(center, dir_y, inner_radius, 90, 12, gizmo_interaction_size * .5, color_gizmo_blue);
+        draw_partial_circle_world_outline(cam, center, dir_y, inner_radius, 90, 12, gizmo_interaction_size * .5, color_gizmo_blue);
     }
 
-    draw_gizmo_axis(center, dir_y, dir_x);
+    draw_gizmo_axis(cam, center, dir_y, dir_x);
 }
 
 try_begin_gizmo_grab :: (gizmo: *RotationalGizmo, center: Vector2) -> bool {
@@ -44,12 +44,12 @@ try_begin_gizmo_grab :: (gizmo: *RotationalGizmo, center: Vector2) -> bool {
     return false;
 }
 
-try_drag_gizmo :: (gizmo: *RotationalGizmo) {
+try_drag_gizmo :: (cam: *Camera, gizmo: *RotationalGizmo) {
     if !gizmo.grabbed return;
     if last_pointer_screen_pos == pointer_screen_pos return;
 
     selected := get_selected();
-    selected_screen_pos := world_to_screen_pos(selected.pos);
+    selected_screen_pos := world_to_screen_pos(cam, selected.pos);
 
     from := normalize(last_pointer_screen_pos - selected_screen_pos);
     to := normalize(pointer_screen_pos - selected_screen_pos);

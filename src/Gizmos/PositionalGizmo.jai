@@ -15,7 +15,7 @@ PositionalGizmoMode :: enum u8 {
     XY;
 }
 
-draw_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) {
+draw_positional_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     tri_x : Tri = ---;
@@ -69,7 +69,7 @@ draw_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2)
 
     // draw
     {
-        draw_gizmo_axis(pos, dir_y, dir_x);
+        draw_gizmo_axis(cam, pos, dir_y, dir_x);
 
         // x
         {
@@ -77,7 +77,7 @@ draw_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2)
                 then color_gizmo_interactive
                 else color_gizmo_red;
             
-            draw_world_tri(gizmo.tri_x, color);
+            draw_world_tri(cam, gizmo.tri_x, color);
         }
         
         // y
@@ -86,7 +86,7 @@ draw_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2)
                 then color_gizmo_interactive
                 else color_gizmo_green;
                 
-            draw_world_tri(gizmo.tri_y, color);
+            draw_world_tri(cam, gizmo.tri_y, color);
         }
 
         // xy
@@ -95,7 +95,7 @@ draw_positional_gizmo :: (gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2)
                 then color_gizmo_interactive
                 else color_gizmo_blue;
 
-            draw_world_quad(gizmo.quad_xy, color);
+            draw_world_quad(cam, gizmo.quad_xy, color);
         }
     }
 }

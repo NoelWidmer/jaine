@@ -24,19 +24,23 @@ I do not recommend to employ her in production yet since a lot of functionality 
 We will keep it that way in order to benefit from simplicity.
 
 ### Camera
-- Pan the camera
+- Pan the camera.
 
 ### Objects
-- Create & delete objects
+- Create & delete objects.
 
 ### Selection
-- Select & unselect one object at the time
-- Transform selection
--- Move selection along x, y or xy by using a gizmo
--- Rotate selection by using a gizmo
+- Select & unselect one object at the time.
+- Transform selection:
+    - Move selection along x, y or xy by using a gizmo.
+    - Rotate selection by using a gizmo.
 
 ### Coordinate System
 - Switch between global and local coordinates to alter the behaviour of some tools.
+
+### History (Undo/Redo)
+- Changes are recorded and can be reverted.
+- Reverted changes can be reapplied. Even if additional changes have been made since the revert.
 
 ## Authors
 
