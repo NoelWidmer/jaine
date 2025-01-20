@@ -10,8 +10,7 @@
 
 #load "draw.jai";
 #load "camera.jai";
-#load "window.jai";
-#load "pointer.jai";
+#load "Viewport.jai";
 #load "Entity.jai";
 #load "selection.jai";
 #load "input_handler.jai";
@@ -36,7 +35,7 @@ main :: () {
         reset_temporary_storage();   
          
         update_viewport(*vp, *cam);
-        update_input(*cam);
+        update_input(*vp, *cam);
         update_cam(*vp, *cam);
 
         // render
@@ -47,7 +46,7 @@ main :: () {
             }
 
             draw_entities(*cam);
-            draw_selection_gizmo(*cam);
+            draw_selection_gizmo(*vp, *cam);
         }
 
         Simp.swap_buffers(vp.window);

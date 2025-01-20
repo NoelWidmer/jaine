@@ -1,9 +1,20 @@
 Viewport :: struct {
     window : Window_Type;
+
     is_fullscreen : bool;
     prev_info : Saved_Window_Info;
+
     screen_size : Vector32s;
     world_size: Vector2;
+
+    last_pointer_screen_pos : Vector2;
+    last_pointer_world_pos : Vector2;
+
+    pointer_screen_pos : Vector2;
+    pointer_world_pos : Vector2;
+
+    has_pointer_moved: bool;
+    pointer_delta : Vector2;
 }
 
 create_viewport :: () -> Viewport {
@@ -46,11 +57,11 @@ update_viewport :: (vp: *Viewport, cam: *Camera) {
                 if key == .F11 {
                     if it.key_pressed && toggle_fullscreen(vp) then invalidate_pointer_screen_pos(vp, cam);
                 } else if key == .MOUSE_BUTTON_LEFT {
-                    on_mouse_left(cam, it);
+                    on_mouse_left(vp, cam, it);
                 } else if key == .MOUSE_BUTTON_RIGHT {
-                    on_mouse_right(cam, it);
+                    on_mouse_right(vp, cam, it);
                 } else if key == xx #char "A" {
-                    on_a(it);
+                    on_a(vp, it);
                 } else if key == xx #char "T" {
                     on_tool(it);
                 } else if key == xx #char "X" {
@@ -91,4 +102,26 @@ toggle_fullscreen :: (vp: *Viewport) -> bool {
 on_viewport_size_changed :: (vp: *Viewport, width: s32, height: s32) {
     vp.screen_size = .{ width, height };
     vp.world_size = .{ xx width, xx height };
+}
+
+invalidate_pointer_screen_pos :: (vp: *Viewport, cam: *Camera) {
+    if !input_application_has_focus then return;
+    
+    x, y, success := get_mouse_pointer_position(vp.window, true);
+
+    if success {
+        vp.last_pointer_screen_pos = vp.pointer_screen_pos;
+        vp.pointer_screen_pos = Vector2.{ xx x, xx y };
+
+        if vp.pointer_screen_pos == vp.last_pointer_screen_pos {
+            vp.has_pointer_moved = false;
+        } else {
+            vp.has_pointer_moved = true;
+            vp.pointer_delta = vp.pointer_screen_pos - vp.last_pointer_screen_pos;
+
+            // TODO: pointer world position also depends on camera position. so this is not going to work properly.
+            vp.last_pointer_world_pos = vp.pointer_world_pos;
+            vp.pointer_world_pos = screen_to_world_pos(cam, vp.pointer_screen_pos);
+        }
+    }
 }

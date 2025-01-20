@@ -48,10 +48,10 @@ get_entity_quad :: (entity: Entity) -> Quad {
     return .{ v1, v2, v3, v4 };
 }
 
-add_entity :: () -> *Entity {
+add_entity :: (vp: *Viewport) -> *Entity {
     locator, entity := bucket_array_add(*entities, .{
         id = next_id,
-        pos = pointer_world_pos
+        pos = vp.pointer_world_pos
     });
 
     entity.locator = locator;

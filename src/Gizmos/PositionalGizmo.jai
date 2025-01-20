@@ -100,18 +100,18 @@ draw_positional_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo, pos: Vector2, d
     }
 }
 
-try_begin_gizmo_grab :: (gizmo: *PositionalGizmo) -> bool {
-    if is_inside_quad(pointer_world_pos, gizmo.quad_xy) {
+try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *PositionalGizmo) -> bool {
+    if is_inside_quad(vp.pointer_world_pos, gizmo.quad_xy) {
         gizmo.mode = PositionalGizmoMode.XY;
         return true;
     }
 
-    if is_inside_triangle(pointer_world_pos, gizmo.tri_x) {
+    if is_inside_triangle(vp.pointer_world_pos, gizmo.tri_x) {
         gizmo.mode = PositionalGizmoMode.X;
         return true;
     }
 
-    if is_inside_triangle(pointer_world_pos, gizmo.tri_y) {
+    if is_inside_triangle(vp.pointer_world_pos, gizmo.tri_y) {
         gizmo.mode = PositionalGizmoMode.Y;
         return true;
     }
@@ -119,7 +119,7 @@ try_begin_gizmo_grab :: (gizmo: *PositionalGizmo) -> bool {
     return false;
 }
 
-try_drag_gizmo :: (gizmo: *PositionalGizmo) {
+try_drag_gizmo :: (vp: *Viewport, gizmo: *PositionalGizmo) {
     if gizmo.mode == PositionalGizmoMode.None return;
 
     selected := get_selected();
@@ -127,9 +127,9 @@ try_drag_gizmo :: (gizmo: *PositionalGizmo) {
 
     delta_pos : Vector2;
     if gizmo.mode == {
-        case PositionalGizmoMode.X; delta_pos = project(pointer_delta, gizmo.dir_x);
-        case PositionalGizmoMode.Y; delta_pos = project(pointer_delta, gizmo.dir_y);
-        case PositionalGizmoMode.XY; delta_pos = pointer_delta;
+        case PositionalGizmoMode.X; delta_pos = project(vp.pointer_delta, gizmo.dir_x);
+        case PositionalGizmoMode.Y; delta_pos = project(vp.pointer_delta, gizmo.dir_y);
+        case PositionalGizmoMode.XY; delta_pos = vp.pointer_delta;
     }
 
     gizmo.pending += delta_pos;

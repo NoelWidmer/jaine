@@ -4,11 +4,11 @@ get_selected :: () -> *Entity {
     return selected;
 }
 
-try_select_entity_under_pointer :: () -> bool {
+try_select_entity_under_pointer :: (vp: *Viewport) -> bool {
     for *entities {
         quad := get_entity_quad(it);
 
-        if is_inside_quad(pointer_world_pos, quad) {
+        if is_inside_quad(vp.pointer_world_pos, quad) {
             select_entity(it);
             return true;
         }
@@ -103,21 +103,21 @@ is_global :: () -> bool {
     return is_global_;
 }
 
-try_grab_selected_gizmo :: () {
+try_grab_selected_gizmo :: (vp: *Viewport) {
     if selected == null return;
     
     if gizmo_kind == {
-        case GizmoKind.Vector2; try_begin_gizmo_grab(*gizmo.vector2);
-        case GizmoKind.Theta; try_begin_gizmo_grab(*gizmo.theta, selected.pos);
+        case GizmoKind.Vector2; try_begin_gizmo_grab(vp, *gizmo.vector2);
+        case GizmoKind.Theta; try_begin_gizmo_grab(vp, *gizmo.theta, selected.pos);
     }
 }
 
-try_drag_selected_gizmo :: (cam: *Camera) {
+try_drag_selected_gizmo :: (vp: *Viewport, cam: *Camera) {
     if selected == null return;
     
     if gizmo_kind == {
-        case GizmoKind.Vector2; try_drag_gizmo(*gizmo.vector2);
-        case GizmoKind.Theta; try_drag_gizmo(cam, *gizmo.theta);
+        case GizmoKind.Vector2; try_drag_gizmo(vp, *gizmo.vector2);
+        case GizmoKind.Theta; try_drag_gizmo(vp, cam, *gizmo.theta);
     }
 }
 
@@ -130,7 +130,7 @@ release_selected_gizmo :: () {
     }
 }
 
-draw_selection_gizmo :: (cam: *Camera) {
+draw_selection_gizmo :: (vp: *Viewport, cam: *Camera) {
     if selected == null return;
     
     Simp.set_shader_for_color();
@@ -153,7 +153,7 @@ draw_selection_gizmo :: (cam: *Camera) {
                 gizmo_kind = GizmoKind.Theta;
             }
 
-            draw_rotational_gizmo(cam, *gizmo.theta, selected.pos, right);
+            draw_rotational_gizmo(vp, cam, *gizmo.theta, selected.pos, right);
     }
 }
 
