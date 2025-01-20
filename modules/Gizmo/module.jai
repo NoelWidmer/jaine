@@ -1,3 +1,14 @@
+#import "Camera";
+#import "History";
+#import "Mathe";
+#import "Math";
+#import "Viewport";
+#import "draw";
+#import "Tagged_Union";
+
+#load "./PositionalGizmo.jai";
+#load "./RotationalGizmo.jai";
+
 Gizmo :: union { 
   vector2: PositionalGizmo; 
   theta: RotationalGizmo;

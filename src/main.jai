@@ -1,36 +1,26 @@
 #import "Basic"; //()(MEMORY_DEBUGGER=true);
-#import "Math";
-#import "Window_Creation";
-#import "Input";
-#import "Tagged_Union";
 
-#load "Gizmos/Gizmo.jai";
-#load "Gizmos/PositionalGizmo.jai";
-#load "Gizmos/RotationalGizmo.jai";
+#import "Simp";
 
-#load "World.jai";
-#load "draw.jai";
-#load "Camera.jai";
-#load "Viewport.jai";
-#load "Entity.jai";
-#load "Selection.jai";
-#load "input_handler.jai";
-#load "math.jai";
-#load "res.jai";
-#load "CircularStack.jai";
-#load "History.jai";
+#import "input_handler";
+#import "Selection";
+#import "Camera";
+#import "History";
+#import "Viewport";
+#import "World";
+#import "res";
 
 main :: () {
-    vp := create_viewport();
-    Simp.set_render_target(vp.window);
-
     load_res();
 
-    history := new_history(HistoricalEvent);
-    last_time = seconds_since_init();
+    vp := create_viewport();
+    set_render_target(vp.window);
 
     cam := new_camera();
     world := new_world();
+    history := new_history(HistoricalEvent);
+
+    last_time = seconds_since_init();
 
     while !quit {
         reset_temporary_storage();   
@@ -39,18 +29,24 @@ main :: () {
         update_input(*vp, *cam);
         update_cam(*vp, *cam);
 
-        // render
+        // render frame
         {
+            // paint over previous frame with background color
             {
-                background_color :: Vector3.{ .1, .1, .2 };
-                Simp.clear_render_target(background_color.x, background_color.y, background_color.z, 1);
+                background_color :: struct { 
+                    r :: .1; 
+                    g :: .1; 
+                    b :: .2;
+                 };
+
+                clear_render_target(background_color.r, background_color.g, background_color.b, 1);
             }
 
-            draw_entities(*cam, *world);
-            draw_selection_gizmo(*vp, *cam);
+            draw_world(*cam, *world);
+            draw_selection(*vp, *cam);
         }
 
-        Simp.swap_buffers(vp.window);
+        swap_buffers(vp.window);
         
         // update time
         {
@@ -63,13 +59,7 @@ main :: () {
     }
 }
 
-quit :: () {
-    quit = true;
-}
-
 #scope_file
-
-quit : bool;
 
 frame_count : int;
 last_time : float64;

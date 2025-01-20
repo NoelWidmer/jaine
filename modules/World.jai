@@ -1,4 +1,16 @@
+#import "Hash_Table";
 #import "Bucket_Array";
+#import "Viewport";
+#import "Entity";
+#import "Camera";
+#import "History";
+#import "Basic";
+#import "Math";
+#import "Simp";
+#import "res";
+#import "draw";
+#import "Mathe";
+#import "Selection";
 
 World :: struct {
     entities : Bucket_Array(Entity, 128);
@@ -35,10 +47,10 @@ remove_entity :: (entity: *Entity, world: *World) {
     bucket_array_remove(*world.entities, entity.locator);
 }
 
-draw_entities :: (cam: *Camera, world: *World) {
+draw_world :: (cam: *Camera, world: *World) {
     color :: Vector4.{ 1, 1, 1, 1 };
     
-    Simp.set_shader_for_images(*strawberry);
+    set_shader_for_images(*strawberry);
 
     for world.entities {
         if it.theta == 0 {

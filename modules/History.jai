@@ -1,3 +1,13 @@
+#import "CircularStack";
+#import "Tagged_Union";
+#import "Basic";
+#import "Math";
+
+History :: struct(T: Type) {
+    events : CircularStack(T);
+    undone_events : CircularStack(T);
+}
+
 HistoricalEvent :: Tagged_Union(
     PositionalHistoryEvent, 
     RotationalHistoryEvent,
@@ -5,9 +15,27 @@ HistoricalEvent :: Tagged_Union(
     SelectionModifiedHistoryEvent,
     DeselectedHistoryEvent);
 
-History :: struct(T: Type) {
-    events : CircularStack(T);
-    undone_events : CircularStack(T);
+PositionalHistoryEvent :: struct {
+    entity_id: u64;
+    delta: Vector2;
+}
+
+RotationalHistoryEvent :: struct {
+    entity_id: u64;
+    delta: float;
+}
+
+SelectedHistoryEvent :: struct {
+    selected: u64;
+}
+
+SelectionModifiedHistoryEvent :: struct {
+    prev_selected: u64;
+    selected: u64;
+}
+
+DeselectedHistoryEvent :: struct {
+    selected: u64;
 }
 
 new_history :: ($T: Type) -> History(T) {

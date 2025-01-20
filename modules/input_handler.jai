@@ -1,3 +1,15 @@
+#import "Basic";
+#import "Tagged_Union";
+#import "Camera";
+#import "Viewport";
+#import "World";
+#import "History";
+#import "Math";
+#import "Input";
+#import "Gizmo";
+#import "Selection";
+#import "Entity";
+
 on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
     if ev.key_pressed {
         vp.is_left_mouse_pressed = true;
@@ -74,20 +86,10 @@ on_history :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev
     }
 }
 
-PositionalHistoryEvent :: struct {
-    entity_id: u64;
-    delta: Vector2;
-}
-
 undo :: (event: PositionalHistoryEvent, undo: bool, world: *World) {
     entity := get_entity(world, event.entity_id);
     assert(entity != null, "could not modify history for entity with id %", event.entity_id);
     entity.pos += ifx undo then -event.delta else event.delta;
-}
-
-RotationalHistoryEvent :: struct {
-    entity_id: u64;
-    delta: float;
 }
 
 undo :: (event: RotationalHistoryEvent, undo: bool, world: *World) {

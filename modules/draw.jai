@@ -1,4 +1,7 @@
-Simp :: #import "Simp";
+#import "Simp";
+#import "Mathe";
+#import "Math";
+#import "Camera";
 
 draw_world_rect :: (cam: *Camera, pos: Vector2, size: Vector2, color := Vector4.{ 1, 1, 1, 1 }) {
     screen_pos := world_to_screen_pos(cam, pos);
@@ -6,7 +9,7 @@ draw_world_rect :: (cam: *Camera, pos: Vector2, size: Vector2, color := Vector4.
     half_size_x := size.x * .5;
     half_size_y := size.y * .5;
 
-    Simp.immediate_quad(
+    immediate_quad(
         screen_pos + .{ -half_size_x, -half_size_y }, 
         screen_pos + .{ half_size_x, -half_size_y }, 
         screen_pos + .{ half_size_x, half_size_y }, 
@@ -15,7 +18,7 @@ draw_world_rect :: (cam: *Camera, pos: Vector2, size: Vector2, color := Vector4.
 }
 
 draw_world_quad :: (cam: *Camera, quad: Quad, color: Vector4) {
-    Simp.immediate_quad(
+    immediate_quad(
         world_to_screen_pos(cam, quad.v1), 
         world_to_screen_pos(cam, quad.v2), 
         world_to_screen_pos(cam, quad.v3), 
@@ -24,7 +27,7 @@ draw_world_quad :: (cam: *Camera, quad: Quad, color: Vector4) {
 }
 
 draw_world_quad_with_uv :: (cam: *Camera, quad: Quad, uv: Quad, color := Vector4.{ 1, 1, 1, 1 }) {
-    Simp.immediate_quad(
+    immediate_quad(
         world_to_screen_pos(cam, quad.v1), 
         world_to_screen_pos(cam, quad.v2), 
         world_to_screen_pos(cam, quad.v3), 
@@ -41,7 +44,7 @@ draw_world_tri :: (cam: *Camera, triangle: Tri, color: Vector4) {
     screen_v2 := world_to_screen_pos(cam, triangle.v2);
     screen_v3 := world_to_screen_pos(cam, triangle.v3);
 
-    Simp.immediate_triangle(
+    immediate_triangle(
         .{ screen_v1.x, screen_v1.y, 0 }, 
         .{ screen_v2.x, screen_v2.y, 0 },
         .{ screen_v3.x, screen_v3.y, 0 }, 

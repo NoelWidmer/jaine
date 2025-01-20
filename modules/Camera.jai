@@ -1,3 +1,7 @@
+#import "Selection";
+#import "Viewport";
+#import "Math";
+
 Camera :: struct {
     world_pos : Vector2;
     bottom_left_world_pos : Vector2;

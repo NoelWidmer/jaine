@@ -1,3 +1,16 @@
+#import "Basic";
+#import "Camera";
+#import "Entity";
+#import "Gizmo";
+#import "History";
+#import "Viewport";
+#import "World";
+#import "Simp";
+#import "Math";
+#import "Tagged_Union";
+#import "Bucket_Array";
+#import "Mathe";
+
 Selection :: struct {
     entity: *Entity;
     gizmo: Gizmo;
@@ -34,10 +47,6 @@ select_entity :: (cam: * Camera, history: *History, entity: *Entity) {
     cam.selection.entity = entity;
 }
 
-SelectedHistoryEvent :: struct {
-    selected: u64;
-}
-
 // TOOD: the camera context should be part of the history record.
 undo :: (cam: *Camera, event: SelectedHistoryEvent, undo: bool, world: *World) {
     if undo {
@@ -46,11 +55,6 @@ undo :: (cam: *Camera, event: SelectedHistoryEvent, undo: bool, world: *World) {
         cam.selection.entity = get_entity(world, event.selected);
         assert(cam.selection.entity != null, "could not redo select to select entity with id %", event.selected);
     }    
-}
-
-SelectionModifiedHistoryEvent :: struct {
-    prev_selected: u64;
-    selected: u64;
 }
 
 // TOOD: the camera context should be part of the history record.
@@ -74,10 +78,6 @@ deselect_entity :: (cam: *Camera, history: *History) {
     }
 
     cam.selection.entity = null;
-}
-
-DeselectedHistoryEvent :: struct {
-    selected: u64;
 }
 
 // TOOD: the camera context should be part of the history record.
@@ -124,10 +124,10 @@ release_selected_gizmo :: (cam: *Camera, history: *History) {
     }
 }
 
-draw_selection_gizmo :: (vp: *Viewport, cam: *Camera) {
+draw_selection :: (vp: *Viewport, cam: *Camera) {
     if cam.selection.entity == null return;
     
-    Simp.set_shader_for_color();
+    set_shader_for_color();
 
     right := ifx cam.is_global
         then Vector2.{ 1, 0 }

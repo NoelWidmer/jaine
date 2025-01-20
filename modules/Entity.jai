@@ -1,4 +1,9 @@
+#import "Bucket_Array";
+#import "Mathe";
+#import "World";
 #import "Hash_Table";
+#import "Math";
+#import "res";
 
 Entity :: struct {
     locator: Bucket_Locator;

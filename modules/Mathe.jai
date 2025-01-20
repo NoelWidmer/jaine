@@ -1,3 +1,5 @@
+#import "Math";
+
 Tri :: struct {
     v1: Vector2;
     v2: Vector2;

@@ -1,3 +1,14 @@
+#import "Window_Creation";
+#import "Camera";
+#import "World";
+#import "History";
+#import "Math";
+#import "Input";
+#import "Simp";
+#import "input_handler";
+
+quit : bool;
+
 Viewport :: struct {
     window : Window_Type;
 
@@ -49,7 +60,7 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
     update_window_events();
 
     for get_window_resizes() {
-        Simp.update_window(it.window);
+        update_window(it.window);
         
         if it.window == vp.window then on_viewport_size_changed(vp, it.width, it.height);
     }
@@ -60,7 +71,7 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
         type := it.type;
 
         if type == {
-            case .QUIT; quit();
+            case .QUIT; quit = true;
             case .KEYBOARD;
             {
                 if it.repeat return;        
