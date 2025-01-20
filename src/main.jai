@@ -26,7 +26,7 @@ main :: () {
 
     load_res();
 
-    history := begin_history(HistoricalEvent);
+    history := new_history(HistoricalEvent);
     last_time = seconds_since_init();
 
     cam := new_camera();

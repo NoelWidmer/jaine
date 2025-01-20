@@ -15,6 +15,19 @@ Viewport :: struct {
 
     has_pointer_moved: bool;
     pointer_delta : Vector2;
+    
+    left_pressed_screen_pos : Vector2;
+    left_pressed_world_pos : Vector2;
+    is_left_mouse_pressed : bool;
+    is_left_grab : bool;
+
+    right_pressed_screen_pos : Vector2;
+    right_pressed_world_pos : Vector2;
+    is_right_mouse_pressed : bool;
+    is_right_grab : bool;
+
+    shift : bool;
+    ctrl : bool;
 }
 
 create_viewport :: () -> Viewport {
@@ -67,13 +80,13 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
                 } else if key == xx #char "X" {
                     on_global_local(cam, it);
                 } else if key == xx #char "Z" {
-                    on_history(cam, world, history, it);
+                    on_history(vp, cam, world, history, it);
                 } else if key == .DELETE {
                     on_delete(cam, world, it);
                 } else if key == .SHIFT {
-                    on_shift(it);
+                    on_shift(vp, it);
                 } else if key == .CTRL {
-                    on_ctrl(it);
+                    on_ctrl(vp, it);
                 }
             }
         }            

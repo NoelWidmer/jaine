@@ -10,7 +10,7 @@ History :: struct(T: Type) {
     undone_events : CircularStack(T);
 }
 
-begin_history :: ($T: Type) -> History(T) {
+new_history :: ($T: Type) -> History(T) {
     return .{
         new_circular_stack(T),
         new_circular_stack(T)
@@ -44,7 +44,7 @@ TestEvent :: struct {
 }
 
 #run {
-    history := begin_history(TestEvent);
+    history := new_history(TestEvent);
     assert(history.events.count == 0);
     assert(history.undone_events.count == 0);
 

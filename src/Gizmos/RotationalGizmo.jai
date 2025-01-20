@@ -7,7 +7,7 @@ draw_rotational_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo, 
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     if gizmo.grabbed {
-        center_to_grab_dir := normalize(left_pressed_world_pos - center);
+        center_to_grab_dir := normalize(vp.left_pressed_world_pos - center);
 
         // partial circle
         {
