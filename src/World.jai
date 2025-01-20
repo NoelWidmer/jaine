@@ -10,7 +10,7 @@ new_world :: () -> World {
     return .{ };
 }
 
-add_entity :: (vp: *Viewport, cam: *Camera, world: *World) -> *Entity {
+add_entity :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) -> *Entity {
     locator, entity := bucket_array_add(*world.entities, .{
         id = world.next_id,
         pos = vp.pointer_world_pos
@@ -23,7 +23,7 @@ add_entity :: (vp: *Viewport, cam: *Camera, world: *World) -> *Entity {
     
     world.next_id += 1;
 
-    select_entity(cam, entity);
+    select_entity(cam, history, entity);
     return entity;
 }
 

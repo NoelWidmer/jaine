@@ -1,4 +1,4 @@
-on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, ev: Event) {
+on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
     if ev.key_pressed {
         is_left_mouse_pressed = true;
         left_pressed_screen_pos = vp.pointer_screen_pos;
@@ -6,12 +6,12 @@ on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, ev: Event) {
         try_grab_selected_gizmo(vp, cam);
     } else {
         is_left_mouse_pressed = false;
-        release_selected_gizmo(cam);
+        release_selected_gizmo(cam, history);
 
         if is_left_grab {
             is_left_grab = false;
         } else {
-            try_select_entity_under_pointer(vp, cam, world);
+            try_select_entity_under_pointer(vp, cam, world, history);
         }
     }
 }
@@ -32,13 +32,13 @@ on_mouse_right :: (vp: *Viewport, cam: *Camera, ev: Event) {
     }
 }
 
-on_history :: (cam: *Camera, world: *World, ev: Event) {
+on_history :: (cam: *Camera, world: *World, history: *History, ev: Event) {
     if ctrl {
         if ev.key_pressed then return;
         
         event := ifx shift
-            then redo(*history)
-            else undo(*history);
+            then redo(history)
+            else undo(history);
 
         if event == null return;
 
@@ -104,8 +104,8 @@ on_ctrl :: (ev: Event) {
     ctrl = ifx ev.key_pressed then true else false;
 }
 
-on_a :: (vp: *Viewport, cam: *Camera, world: *World, ev: Event) {
-    if shift && ev.key_pressed then add_entity(vp, cam, world);
+on_a :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
+    if shift && ev.key_pressed then add_entity(vp, cam, world, history);
 }
 
 on_tool :: (cam: *Camera, ev: Event) {

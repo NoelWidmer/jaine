@@ -5,8 +5,6 @@ HistoricalEvent :: Tagged_Union(
     SelectionModifiedHistoryEvent,
     DeselectedHistoryEvent);
 
-history : History(HistoricalEvent) = ---;
-
 History :: struct(T: Type) {
     events : CircularStack(T);
     undone_events : CircularStack(T);

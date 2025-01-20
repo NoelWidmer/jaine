@@ -32,7 +32,7 @@ create_viewport :: () -> Viewport {
     return vp;
 }
 
-update_viewport :: (vp: *Viewport, cam: *Camera, world: *World) {
+update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) {
     update_window_events();
 
     for get_window_resizes() {
@@ -57,17 +57,17 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World) {
                 if key == .F11 {
                     if it.key_pressed && toggle_fullscreen(vp) then invalidate_pointer_screen_pos(vp, cam);
                 } else if key == .MOUSE_BUTTON_LEFT {
-                    on_mouse_left(vp, cam, world, it);
+                    on_mouse_left(vp, cam, world, history, it);
                 } else if key == .MOUSE_BUTTON_RIGHT {
                     on_mouse_right(vp, cam, it);
                 } else if key == xx #char "A" {
-                    on_a(vp, cam, world, it);
+                    on_a(vp, cam, world, history, it);
                 } else if key == xx #char "T" {
                     on_tool(cam, it);
                 } else if key == xx #char "X" {
                     on_global_local(cam, it);
                 } else if key == xx #char "Z" {
-                    on_history(cam, world, it);
+                    on_history(cam, world, history, it);
                 } else if key == .DELETE {
                     on_delete(cam, world, it);
                 } else if key == .SHIFT {

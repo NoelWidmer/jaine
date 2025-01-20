@@ -3,21 +3,21 @@ Selection :: struct {
     gizmo: Gizmo;
 }
 
-try_select_entity_under_pointer :: (vp: *Viewport, cam: *Camera, world: *World) -> bool {
+try_select_entity_under_pointer :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) -> bool {
     for *world.entities {
         quad := get_entity_quad(it);
 
         if is_inside_quad(vp.pointer_world_pos, quad) {
-            select_entity(cam, it);
+            select_entity(cam, history, it);
             return true;
         }
     }
 
-    deselect_entity(cam);
+    deselect_entity(cam, history);
     return false;
 }
 
-select_entity :: (cam: * Camera, entity: *Entity) {
+select_entity :: (cam: * Camera, history: *History, entity: *Entity) {
     if cam.selection.entity == entity return;
 
     // record history
@@ -28,7 +28,7 @@ select_entity :: (cam: * Camera, entity: *Entity) {
             then set(*event, SelectedHistoryEvent.{ entity.id });
             else set(*event, SelectionModifiedHistoryEvent.{ cam.selection.entity.id, entity.id });
 
-        record(*history, event);
+        record(history, event);
     }
 
     cam.selection.entity = entity;
@@ -63,14 +63,14 @@ undo :: (cam: *Camera, event: SelectionModifiedHistoryEvent, undo: bool, world: 
     assert(cam.selection.entity != null, "could not modify selection to select entity with id %", id);  
 }
 
-deselect_entity :: (cam: *Camera) {
+deselect_entity :: (cam: *Camera, history: *History) {
     if cam.selection.entity == null return;
     
     // record history
     {
         event : HistoricalEvent;
         set(*event, DeselectedHistoryEvent.{ cam.selection.entity.id });
-        record(*history, event);
+        record(history, event);
     }
 
     cam.selection.entity = null;
@@ -115,12 +115,12 @@ try_drag_selected_gizmo :: (vp: *Viewport, cam: *Camera) {
     }
 }
 
-release_selected_gizmo :: (cam: *Camera) {
+release_selected_gizmo :: (cam: *Camera, history: *History) {
     if cam.selection.entity == null return;
 
     if cam.tool == {
-        case Tool.Move; release_gizmo(cam, *cam.selection.gizmo.vector2);
-        case Tool.Rotate; release_gizmo(cam, *cam.selection.gizmo.theta);
+        case Tool.Move; release_gizmo(cam, history, *cam.selection.gizmo.vector2);
+        case Tool.Rotate; release_gizmo(cam, history, *cam.selection.gizmo.theta);
     }
 }
 

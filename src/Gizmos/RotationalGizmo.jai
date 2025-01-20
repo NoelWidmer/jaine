@@ -68,13 +68,13 @@ try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo) {
     cam.selection.entity.theta += delta_theta;
 }
 
-release_gizmo :: (cam: *Camera, gizmo: *RotationalGizmo) {
+release_gizmo :: (cam: *Camera, history: *History, gizmo: *RotationalGizmo) {
     gizmo.grabbed = false;
 
     if gizmo.pending != 0 {
         event : HistoricalEvent;
         set(*event, RotationalHistoryEvent.{ cam.selection.entity.id, gizmo.pending });
-        record(*history, event);
+        record(history, event);
 
         gizmo.pending = 0;
     }

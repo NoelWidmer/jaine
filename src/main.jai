@@ -4,21 +4,21 @@
 #import "Input";
 #import "Tagged_Union";
 
-#load "Gizmos/gizmo.jai";
+#load "Gizmos/Gizmo.jai";
 #load "Gizmos/PositionalGizmo.jai";
 #load "Gizmos/RotationalGizmo.jai";
 
 #load "World.jai";
 #load "draw.jai";
-#load "camera.jai";
+#load "Camera.jai";
 #load "Viewport.jai";
 #load "Entity.jai";
-#load "selection.jai";
+#load "Selection.jai";
 #load "input_handler.jai";
 #load "math.jai";
 #load "res.jai";
 #load "CircularStack.jai";
-#load "history.jai";
+#load "History.jai";
 
 main :: () {
     vp := create_viewport();
@@ -26,7 +26,7 @@ main :: () {
 
     load_res();
 
-    history = begin_history(HistoricalEvent);
+    history := begin_history(HistoricalEvent);
     last_time = seconds_since_init();
 
     cam := new_camera();
@@ -35,7 +35,7 @@ main :: () {
     while !quit {
         reset_temporary_storage();   
          
-        update_viewport(*vp, *cam, *world);
+        update_viewport(*vp, *cam, *world, *history);
         update_input(*vp, *cam);
         update_cam(*vp, *cam);
 

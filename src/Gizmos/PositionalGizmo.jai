@@ -135,13 +135,13 @@ try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *PositionalGizmo) {
     cam.selection.entity.pos += delta_pos;
 }
 
-release_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo) {
+release_gizmo :: (cam: *Camera, history: *History, gizmo: *PositionalGizmo) {
     gizmo.mode = PositionalGizmoMode.None;
 
     if gizmo.pending != .{ 0, 0 } {
         event : HistoricalEvent;
         set(*event, PositionalHistoryEvent.{ cam.selection.entity.id, gizmo.pending });
-        record(*history, event);
+        record(history, event);
 
         gizmo.pending = .{ 0, 0 };
     }
