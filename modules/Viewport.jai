@@ -5,7 +5,6 @@
 #import "Math";
 #import "Input";
 #import "Simp";
-#import "Entity";
 #import "input_handler";
 
 quit : bool;
@@ -126,6 +125,8 @@ toggle_fullscreen :: (vp: *Viewport) -> bool {
 
 on_viewport_size_changed :: (vp: *Viewport, width: s32, height: s32) {
     vp.screen_size = .{ width, height };
+    
+    // TODO here we need to consider zoom once we add that.
     vp.world_size = .{ xx width, xx height };
 }
 

@@ -6,9 +6,7 @@
 #import "History";
 #import "Math";
 #import "Input";
-#import "Gizmo";
 #import "Selection";
-#import "Entity";
 
 on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
     if ev.key_pressed {
@@ -109,8 +107,10 @@ on_ctrl :: (vp: *Viewport, ev: Event) {
 on_a :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
     if vp.shift && ev.key_pressed 
     {
-        entity := add_entity(world, history);
+        entity := add_entity(world);
         entity.pos = vp.pointer_world_pos;
+            
+        // record history  
 
         select_entity(cam, history, entity);
     }

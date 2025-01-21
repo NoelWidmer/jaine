@@ -1,12 +1,8 @@
+#import "Basic";
 #import "Bucket_Array";
 #import "Hash_Table";
 #import "Entity";
 #import "Camera";
-#import "History";
-#import "Basic";
-#import "Math";
-#import "draw";
-#import "Mathe";
 
 World :: struct {
     entities : Bucket_Array(Entity, 128);
@@ -18,14 +14,12 @@ new_world :: () -> World {
     return .{ };
 }
 
-add_entity :: (world: *World, history: *History) -> *Entity {
+add_entity :: (world: *World) -> *Entity {
     locator, entity := bucket_array_add(*world.entities, .{ id = world.next_id });
     entity.locator = locator;
 
     table_add(*world.entity_by_id, world.next_id, entity);
-    world.next_id += 1;
-    
-    // record history    
+    world.next_id += 1;  
 
     return entity;
 }

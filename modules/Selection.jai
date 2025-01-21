@@ -6,7 +6,6 @@
 #import "Viewport";
 #import "World";
 #import "Simp";
-#import "Math";
 #import "Tagged_Union";
 #import "Bucket_Array";
 #import "Mathe";
@@ -130,7 +129,7 @@ draw_selection :: (vp: *Viewport, cam: *Camera) {
     set_shader_for_color();
 
     right := ifx cam.is_global
-        then Vector2.{ 1, 0 }
+        then .{ 1, 0 }
         else get_entity_right(cam.selection.entity); 
     
     if cam.tool == {

@@ -1,6 +1,6 @@
+#import "Basic";
 #import "CircularStack";
 #import "Tagged_Union";
-#import "Basic";
 #import "Math";
 
 History :: struct(T: Type) {
