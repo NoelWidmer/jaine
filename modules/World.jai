@@ -1,16 +1,12 @@
-#import "Hash_Table";
 #import "Bucket_Array";
-#import "Viewport";
+#import "Hash_Table";
 #import "Entity";
 #import "Camera";
 #import "History";
 #import "Basic";
 #import "Math";
-#import "Simp";
-#import "res";
 #import "draw";
 #import "Mathe";
-#import "Selection";
 
 World :: struct {
     entities : Bucket_Array(Entity, 128);
@@ -22,21 +18,21 @@ new_world :: () -> World {
     return .{ };
 }
 
-add_entity :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) -> *Entity {
-    locator, entity := bucket_array_add(*world.entities, .{
-        id = world.next_id,
-        pos = vp.pointer_world_pos
-    });
-
+add_entity :: (world: *World, history: *History) -> *Entity {
+    locator, entity := bucket_array_add(*world.entities, .{ id = world.next_id });
     entity.locator = locator;
-    table_add(*world.entity_by_id, world.next_id, entity);
-    
-    // record history
-    
-    world.next_id += 1;
 
-    select_entity(cam, history, entity);
+    table_add(*world.entity_by_id, world.next_id, entity);
+    world.next_id += 1;
+    
+    // record history    
+
     return entity;
+}
+
+get_entity :: (world: *World, id: u64) -> *Entity {
+    entity, success := table_find(*world.entity_by_id, id);
+    return ifx success then entity else null;
 }
 
 remove_entity :: (entity: *Entity, world: *World) {
@@ -48,24 +44,7 @@ remove_entity :: (entity: *Entity, world: *World) {
 }
 
 draw_world :: (cam: *Camera, world: *World) {
-    color :: Vector4.{ 1, 1, 1, 1 };
-    
-    set_shader_for_images(*strawberry);
-
     for world.entities {
-        if it.theta == 0 {
-            size := get_entity_size();
-            draw_world_rect(cam, it.pos, size);
-        } else {
-                uv :: Quad.{
-                    .{ 0, 0 },
-                    .{ 1, 0 },
-                    .{ 1, 1 },
-                    .{ 0, 1 }
-                };
-
-                quad := get_entity_quad(it);
-                draw_world_quad_with_uv(cam, quad, uv);
-            }
+        draw_entity(cam, it);
     }
 }

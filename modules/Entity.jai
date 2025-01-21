@@ -1,9 +1,11 @@
+#import "Basic";
 #import "Bucket_Array";
 #import "Mathe";
-#import "World";
 #import "Hash_Table";
 #import "Math";
-#import "res";
+#import "Simp";
+#import "draw";
+#import "Camera";
 
 Entity :: struct {
     locator: Bucket_Locator;
@@ -11,15 +13,6 @@ Entity :: struct {
 
     pos: Vector2;
     theta: float;
-}
-
-get_entity :: (world: *World, id: u64) -> *Entity {
-    entity, success := table_find(*world.entity_by_id, id);
-    return ifx success then entity else null;
-}
-
-get_entity_size :: () -> Vector2 {
-    return .{ xx (strawberry.width * 2), xx (strawberry.height * 2) };
 }
 
 get_entity_up :: (entity: Entity) -> Vector2 {
@@ -38,7 +31,7 @@ get_entity_quad :: (entity: Entity) -> Quad {
     up_dir := get_entity_up(entity);
     right_dir := get_entity_right(entity);
 
-    size := get_entity_size();
+    size := get_entity_size(entity);
     size_half := size * .5;
 
     up_offset := up_dir * size.y;
@@ -49,4 +42,37 @@ get_entity_quad :: (entity: Entity) -> Quad {
     v4 := v1 + up_offset;
 
     return .{ v1, v2, v3, v4 };
+}
+
+draw_entity :: (cam: *Camera, entity: Entity) {
+    tex := get_texture();
+    set_shader_for_images(*tex);
+
+    if entity.theta == 0 {
+        size := get_entity_size(entity);
+        draw_world_rect(cam, entity.pos, size);
+    } else {
+        uv :: Quad.{
+            .{ 0, 0 },
+            .{ 1, 0 },
+            .{ 1, 1 },
+            .{ 0, 1 }
+        };
+
+        quad := get_entity_quad(entity);
+        draw_world_quad_with_uv(cam, quad, uv);
+    }
+}
+
+#scope_file
+
+get_texture :: () -> Texture {
+    t : Texture;
+    texture_load_from_file(*t, "res/strawberry.png");
+    return t;
+}
+
+get_entity_size :: (entity: Entity) -> Vector2 {
+    tex := get_texture();
+    return .{ xx (tex.width * 2), xx (tex.height * 2) };
 }

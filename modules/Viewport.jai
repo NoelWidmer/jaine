@@ -5,6 +5,7 @@
 #import "Math";
 #import "Input";
 #import "Simp";
+#import "Entity";
 #import "input_handler";
 
 quit : bool;
@@ -139,6 +140,7 @@ invalidate_pointer_screen_pos :: (vp: *Viewport, cam: *Camera) {
 
         if vp.pointer_screen_pos == vp.last_pointer_screen_pos {
             vp.has_pointer_moved = false;
+            vp.pointer_delta = .{};
         } else {
             vp.has_pointer_moved = true;
             vp.pointer_delta = vp.pointer_screen_pos - vp.last_pointer_screen_pos;

@@ -8,11 +8,8 @@
 #import "History";
 #import "Viewport";
 #import "World";
-#import "res";
 
 main :: () {
-    load_res();
-
     vp := create_viewport();
     set_render_target(vp.window);
 
@@ -26,6 +23,7 @@ main :: () {
         reset_temporary_storage();   
          
         update_viewport(*vp, *cam, *world, *history);
+
         update_input(*vp, *cam);
         update_cam(*vp, *cam);
 

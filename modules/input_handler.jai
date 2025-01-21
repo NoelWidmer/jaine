@@ -107,7 +107,13 @@ on_ctrl :: (vp: *Viewport, ev: Event) {
 }
 
 on_a :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
-    if vp.shift && ev.key_pressed then add_entity(vp, cam, world, history);
+    if vp.shift && ev.key_pressed 
+    {
+        entity := add_entity(world, history);
+        entity.pos = vp.pointer_world_pos;
+
+        select_entity(cam, history, entity);
+    }
 }
 
 on_tool :: (cam: *Camera, ev: Event) {
