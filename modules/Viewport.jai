@@ -30,11 +30,13 @@ Viewport :: struct {
     left_pressed_screen_pos : Vector2;
     left_pressed_world_pos : Vector2;
     is_left_mouse_pressed : bool;
+    is_left_mouse_pressed_this_frame : bool;
     is_left_grab : bool;
 
     right_pressed_screen_pos : Vector2;
     right_pressed_world_pos : Vector2;
     is_right_mouse_pressed : bool;
+    is_right_mouse_pressed_this_frame : bool;
     is_right_grab : bool;
 
     shift : bool;
@@ -66,6 +68,9 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
     }
     
     invalidate_pointer_screen_pos(vp, cam);
+
+    vp.is_left_mouse_pressed_this_frame = false;
+    vp.is_right_mouse_pressed_this_frame = false;
         
     for events_this_frame {
         type := it.type;
@@ -93,7 +98,7 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
                 } else if key == xx #char "Z" {
                     on_history(vp, cam, world, history, it);
                 } else if key == .DELETE {
-                    on_delete(cam, world, it);
+                    on_delete(cam, world, history, it);
                 } else if key == .SHIFT {
                     on_shift(vp, it);
                 } else if key == .CTRL {

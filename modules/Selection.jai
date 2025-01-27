@@ -15,6 +15,15 @@ Selection :: struct {
     gizmo: Gizmo;
 }
 
+update_selection :: (selection: *Selection, cam: *Camera) {
+    if selection.entity == null return;
+    
+    if tool == {
+        case Tool.Move; update_gizmo(*selection.gizmo.vector2);
+        case Tool.Rotate; update_gizmo(*selection.gizmo.theta, selection.entity.pos);
+    }
+}
+
 try_select_entity_under_pointer :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) -> bool {
     for *world.entities {
         quad := get_entity_quad(it);
@@ -89,11 +98,17 @@ undo :: (cam: *Camera, event: DeselectedHistoryEvent, undo: bool, world: *World)
     }   
 }
 
-delete_selected :: (cam: *Camera, world: *World) {
+delete_selected :: (cam: *Camera, world: *World, history: *History) {
     if cam.selection.entity == null return;
-    // TODO history
-    remove_entity(cam.selection.entity, world);
-    cam.selection.entity = null;
+    removed := remove_entity(cam.selection.entity, world);
+    cam.selection.entity = null;    
+            
+    // history
+    {
+        event : HistoricalEvent;
+        set(*event, RemovedHistoryEvent.{ removed.id });
+        record(history, event);
+    }
 }
 
 try_grab_selected_gizmo :: (vp: *Viewport, cam: *Camera) {

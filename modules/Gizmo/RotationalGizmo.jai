@@ -3,6 +3,10 @@ RotationalGizmo :: struct {
     pending: float;
 }
 
+update_gizmo :: (gizmo: *RotationalGizmo) {
+
+}
+
 draw_rotational_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo, center: Vector2, dir_x: Vector2) {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 

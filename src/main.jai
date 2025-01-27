@@ -23,7 +23,6 @@ main :: () {
         reset_temporary_storage();   
          
         update_viewport(*vp, *cam, *world, *history);
-
         update_input(*vp, *cam);
         update_cam(*vp, *cam);
 
@@ -35,7 +34,7 @@ main :: () {
                     r :: .1; 
                     g :: .1; 
                     b :: .2;
-                 };
+                };
 
                 clear_render_target(background_color.r, background_color.g, background_color.b, 1);
             }

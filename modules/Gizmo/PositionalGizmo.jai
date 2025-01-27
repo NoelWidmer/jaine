@@ -100,6 +100,15 @@ draw_positional_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo, pos: Vector2, d
     }
 }
 
+update_gizmo :: (gizmo: *PositionalGizmoMode, vp: *Viewport) {
+    if gizmo.mode {
+        case PositionalGizmoMode.None;
+            if vp.is_left_mouse_pressed_this_frame {
+                try_begin_gizmo_grab(vp, gizmo);
+            }
+    }
+}
+
 try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *PositionalGizmo) -> bool {
     if is_inside_quad(vp.pointer_world_pos, gizmo.quad_xy) {
         gizmo.mode = PositionalGizmoMode.XY;

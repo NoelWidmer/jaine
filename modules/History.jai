@@ -15,6 +15,14 @@ HistoricalEvent :: Tagged_Union(
     SelectionModifiedHistoryEvent,
     DeselectedHistoryEvent);
 
+AddedHistoryEvent :: struct {
+    entity_id: u64;
+}
+
+RemovedHistoryEvent :: struct {
+    entity_id: u64;
+}
+
 PositionalHistoryEvent :: struct {
     entity_id: u64;
     delta: Vector2;

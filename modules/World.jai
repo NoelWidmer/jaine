@@ -24,17 +24,21 @@ add_entity :: (world: *World) -> *Entity {
     return entity;
 }
 
-get_entity :: (world: *World, id: u64) -> *Entity {
-    entity, success := table_find(*world.entity_by_id, id);
+get_entity :: (world: *World, entity_id: u64) -> *Entity {
+    entity, success := table_find(*world.entity_by_id, entity_id);
     return ifx success then entity else null;
 }
 
-remove_entity :: (entity: *Entity, world: *World) {
-    success, _ := table_remove(*world.entity_by_id, entity.id);
-    assert(success, "could not remove an entity from the id lookup.");
+remove_entity :: (world: *World, entity_id: u64) {
+    entity := get_entity(world, entity_id);
+    if entity != null then remove_entity(entity, world);
+}
 
-    // record history
-    bucket_array_remove(*world.entities, entity.locator);
+remove_entity :: (entity: *Entity, world: *World) -> Entity {
+    success, removed := table_remove(*world.entity_by_id, entity.id);
+    assert(success, "could not remove an entity from the id lookup.");
+    bucket_array_remove(*world.entities, removed.locator);
+    return removed;
 }
 
 draw_world :: (cam: *Camera, world: *World) {

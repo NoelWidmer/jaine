@@ -11,8 +11,11 @@
 on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
     if ev.key_pressed {
         vp.is_left_mouse_pressed = true;
+        vp.is_left_mouse_pressed_this_frame = true;
+
         vp.left_pressed_screen_pos = vp.pointer_screen_pos;
         vp.left_pressed_world_pos = screen_to_world_pos(cam, vp.left_pressed_screen_pos);
+        
         try_grab_selected_gizmo(vp, cam);
     } else {
         vp.is_left_mouse_pressed = false;
@@ -29,6 +32,8 @@ on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, history: *History,
 on_mouse_right :: (vp: *Viewport, cam: *Camera, ev: Event) {
     if ev.key_pressed {
         vp.is_right_mouse_pressed = true;
+        vp.is_right_mouse_pressed_this_frame = true;
+
         vp.right_pressed_screen_pos = vp.pointer_screen_pos;
         vp.right_pressed_world_pos = screen_to_world_pos(cam, vp.right_pressed_screen_pos);
     } else {
@@ -51,6 +56,18 @@ on_history :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev
             else undo(history);
 
         if event == null return;
+
+        added := isa(event, AddedHistoryEvent);
+        if added {
+            undo(added, !vp.shift, world);
+            return;
+        }
+
+        removed := isa(event, RemovedHistoryEvent);
+        if removed {
+            undo(removed, !vp.shift, world);
+            return;
+        }
 
         positional := isa(event, PositionalHistoryEvent);
         if positional {
@@ -84,6 +101,22 @@ on_history :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev
     }
 }
 
+undo :: (event: AddedHistoryEvent, undo: bool, world: *World) {
+    if undo then remove_(world, event.entity_id); else add();
+}
+
+undo :: (event: RemovedHistoryEvent, undo: bool, world: *World) {
+    if undo then add(); else remove_(world, event.entity_id);
+}
+
+add :: () {
+    // TODO: this requires the entity state to be recorded in the history.
+}
+
+remove_ :: (world: *World, entity_id: u64) {
+    remove_entity(world, entity_id);
+}
+
 undo :: (event: PositionalHistoryEvent, undo: bool, world: *World) {
     entity := get_entity(world, event.entity_id);
     assert(entity != null, "could not modify history for entity with id %", event.entity_id);
@@ -105,12 +138,16 @@ on_ctrl :: (vp: *Viewport, ev: Event) {
 }
 
 on_a :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
-    if vp.shift && ev.key_pressed 
-    {
+    if vp.shift && ev.key_pressed {
         entity := add_entity(world);
         entity.pos = vp.pointer_world_pos;
             
-        // record history  
+        // history
+        {
+            event : HistoricalEvent;
+            set(*event, AddedHistoryEvent.{ entity.id });
+            record(history, event);
+        }
 
         select_entity(cam, history, entity);
     }
@@ -124,8 +161,8 @@ on_global_local :: (cam: *Camera, ev: Event) {
     if !ev.key_pressed then cam.is_global = !cam.is_global;
 }
 
-on_delete :: (cam: *Camera, world: *World, ev: Event) {
-    if !ev.key_pressed delete_selected(cam, world);    
+on_delete :: (cam: *Camera, world: *World, history: *History, ev: Event) {
+    if !ev.key_pressed then delete_selected(cam, world, history);
 }
 
 update_input :: (vp: *Viewport, cam: *Camera) {
