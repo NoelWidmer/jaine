@@ -113,17 +113,17 @@ draw_positional_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo, pos: Vector2, d
 #scope_file
 
 grab_gizmo :: (vp: *Viewport, gizmo: *PositionalGizmo) -> bool {
-    if is_inside_quad(vp.pointer.pointer_world_pos, gizmo.quad_xy) {
+    if is_inside_quad(vp.pointer.world_pos, gizmo.quad_xy) {
         gizmo.mode = PositionalGizmoMode.XY;
         return true;
     }
 
-    if is_inside_triangle(vp.pointer.pointer_world_pos, gizmo.tri_x) {
+    if is_inside_triangle(vp.pointer.world_pos, gizmo.tri_x) {
         gizmo.mode = PositionalGizmoMode.X;
         return true;
     }
 
-    if is_inside_triangle(vp.pointer.pointer_world_pos, gizmo.tri_y) {
+    if is_inside_triangle(vp.pointer.world_pos, gizmo.tri_y) {
         gizmo.mode = PositionalGizmoMode.Y;
         return true;
     }

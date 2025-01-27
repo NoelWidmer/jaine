@@ -21,7 +21,7 @@ draw_rotational_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo, 
 
         // partial circle
         {
-            center_to_pointer_dir := normalize(vp.pointer.pointer_world_pos - center);
+            center_to_pointer_dir := normalize(vp.pointer.world_pos - center);
             left := rotate_dir_90_deg_ccw(center_to_grab_dir);
             degrees := angle(center_to_grab_dir, center_to_pointer_dir);
             if dot(left, center_to_pointer_dir) > 0 then degrees = -degrees;
@@ -33,7 +33,7 @@ draw_rotational_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo, 
         draw_world_vector(cam, center, center_to_grab_dir * outer_radius, 1, color_gizmo_blue);
 
         // to pointer
-        draw_world_line(cam, center, vp.pointer.pointer_world_pos, 1, color_gizmo_interactive);
+        draw_world_line(cam, center, vp.pointer.world_pos, 1, color_gizmo_interactive);
     } else {
         draw_partial_circle_world_outline(cam, center, dir_y, inner_radius, 90, 12, gizmo_interaction_size * .5, color_gizmo_blue);
     }
@@ -44,7 +44,7 @@ draw_rotational_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo, 
 #scope_file
 
 try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *RotationalGizmo, center: Vector2) -> bool {
-    dist := distance(vp.pointer.pointer_world_pos, center);
+    dist := distance(vp.pointer.world_pos, center);
 
     if dist > outer_radius return false;
 

@@ -15,12 +15,12 @@ Selection :: struct {
     gizmo: Gizmo;
 }
 
-update_selection :: (selection: *Selection, vp: *Viewport, cam: *Camera, history: *History, world: *World) {
+update_selection :: (vp: *Viewport, cam: *Camera, history: *History, world: *World) {
     // update gizmo
-    if selection.entity != null {
+    if cam.selection.entity != null {
         if cam.tool == {
-            case Tool.Move; update_gizmo(*selection.gizmo.vector2, vp, cam, history);
-            case Tool.Rotate; update_gizmo(*selection.gizmo.theta, vp, cam, history, cam.selection.entity.pos);
+            case Tool.Move; update_gizmo(*cam.selection.gizmo.vector2, vp, cam, history);
+            case Tool.Rotate; update_gizmo(*cam.selection.gizmo.theta, vp, cam, history, cam.selection.entity.pos);
         }
     }    
     
@@ -29,29 +29,29 @@ update_selection :: (selection: *Selection, vp: *Viewport, cam: *Camera, history
         is_gizmo_interaction := false;
 
         if cam.tool == {
-            case Tool.Move; is_gizmo_interaction = selection.gizmo.vector2.mode != PositionalGizmoMode.None;
-            case Tool.Rotate; is_gizmo_interaction = selection.gizmo.theta.grabbed;
+            case Tool.Move; is_gizmo_interaction = cam.selection.gizmo.vector2.mode != PositionalGizmoMode.None;
+            case Tool.Rotate; is_gizmo_interaction = cam.selection.gizmo.theta.grabbed;
         }
 
-        if !is_gizmo_interaction then try_select_entity_under_pointer(vp, cam, world, history);
+        if !is_gizmo_interaction then try_select_entity_under_pointer(vp, *cam.selection, world, history);
     }
 }
 
-select_entity :: (cam: * Camera, history: *History, entity: *Entity) {
-    if cam.selection.entity == entity return;
+select_entity :: (selection: *Selection, history: *History, entity: *Entity) {
+    if selection.entity == entity return;
 
     // record history
     {
         event : HistoricalEvent;
 
-        if cam.selection.entity == null
+        if selection.entity == null
             then set(*event, SelectedHistoryEvent.{ entity.id });
-            else set(*event, SelectionModifiedHistoryEvent.{ cam.selection.entity.id, entity.id });
+            else set(*event, SelectionModifiedHistoryEvent.{ selection.entity.id, entity.id });
 
         record(history, event);
     }
 
-    cam.selection.entity = entity;
+    selection.entity = entity;
 }
 
 // TOOD: the camera context should be part of the history record.
@@ -74,17 +74,17 @@ undo :: (cam: *Camera, event: SelectionModifiedHistoryEvent, undo: bool, world: 
     assert(cam.selection.entity != null, "could not modify selection to select entity with id %", id);  
 }
 
-deselect_entity :: (cam: *Camera, history: *History) {
-    if cam.selection.entity == null return;
+deselect_entity :: (selection: *Selection, history: *History) {
+    if selection.entity == null return;
     
     // record history
     {
         event : HistoricalEvent;
-        set(*event, DeselectedHistoryEvent.{ cam.selection.entity.id });
+        set(*event, DeselectedHistoryEvent.{ selection.entity.id });
         record(history, event);
     }
 
-    cam.selection.entity = null;
+    selection.entity = null;
 }
 
 // TOOD: the camera context should be part of the history record.
@@ -127,16 +127,16 @@ draw_selection :: (vp: *Viewport, cam: *Camera) {
 
 #scope_file
 
-try_select_entity_under_pointer :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) -> bool {
+try_select_entity_under_pointer :: (vp: *Viewport, selection: *Selection, world: *World, history: *History) -> bool {
     for *world.entities {
         quad := get_entity_quad(it);
 
-        if is_inside_quad(vp.pointer.pointer_world_pos, quad) {
-            select_entity(cam, history, it);
+        if is_inside_quad(vp.pointer.world_pos, quad) {
+            select_entity(selection, history, it);
             return true;
         }
     }
 
-    deselect_entity(cam, history);
+    deselect_entity(selection, history);
     return false;
 }

@@ -44,12 +44,12 @@ move_camera :: (cam: *Camera, delta_pos: Vector2) {
 }
 
 update_cam :: (vp: *Viewport, cam: *Camera, history: *History, world: *World) {
-    if vp.right_mouse_button.is_grab {        
+    if vp.right_mouse_button.is_drag {        
         move_camera(cam, -vp.pointer.screen_delta);
     }
 
     cam.bottom_left_world_pos = cam.world_pos - vp.world_size * .5;
-    update_selection(*cam.selection, vp, cam, history, world);
+    update_selection(vp, cam, history, world);
 }
 
 render :: (cam: *Camera, world: *World) {
