@@ -89,6 +89,8 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
                 
                 if key == .F11 {
                     if it.key_pressed && toggle_fullscreen(vp) then invalidate_pointer_screen_pos(vp, cam);
+                } else if key == .ESCAPE {
+                    quit = true;
                 } else if key == .MOUSE_BUTTON_LEFT {
                     on_mouse_left(vp, cam, world, history, it);
                 } else if key == .MOUSE_BUTTON_RIGHT {
