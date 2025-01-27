@@ -2,6 +2,10 @@
 #import "CircularStack";
 #import "Tagged_Union";
 #import "Math";
+#import "Viewport";
+#import "Camera";
+#import "World";
+#import "Selection";
 
 History :: struct(T: Type) {
     events : CircularStack(T);
@@ -71,6 +75,86 @@ redo :: (history: *History($T)) -> *T {
 
     record(history, event);
     return event;
+}
+
+on_history :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) {
+    if !vp.ctrl then return;
+    
+    event := ifx vp.shift
+        then redo(history)
+        else undo(history);
+
+    if event == null return;
+
+    added := isa(event, AddedHistoryEvent);
+    if added {
+        undo(added, !vp.shift, world);
+        return;
+    }
+
+    removed := isa(event, RemovedHistoryEvent);
+    if removed {
+        undo(removed, !vp.shift, world);
+        return;
+    }
+
+    positional := isa(event, PositionalHistoryEvent);
+    if positional {
+        undo(positional, !vp.shift, world);
+        return;
+    }
+    
+    rotational := isa(event, RotationalHistoryEvent);
+    if rotational {
+        undo(rotational, !vp.shift, world);
+        return;
+    }
+    
+    selectional := isa(event, SelectedHistoryEvent);
+    if selectional {
+        undo(cam, selectional, !vp.shift, world);
+        return;
+    }
+    
+    selection_modified := isa(event, SelectionModifiedHistoryEvent);
+    if selection_modified {
+        undo(cam, selection_modified, !vp.shift, world);
+        return;
+    }
+    
+    deselectional := isa(event, DeselectedHistoryEvent);
+    if deselectional {
+        undo(cam, deselectional, !vp.shift, world);
+        return;
+    }
+}
+
+undo :: (event: AddedHistoryEvent, undo: bool, world: *World) {
+    if undo then remove_(world, event.entity_id); else add();
+}
+
+undo :: (event: RemovedHistoryEvent, undo: bool, world: *World) {
+    if undo then add(); else remove_(world, event.entity_id);
+}
+
+add :: () {
+    // TODO: this requires the entity state to be recorded in the history.
+}
+
+remove_ :: (world: *World, entity_id: u64) {
+    remove_entity(world, entity_id);
+}
+
+undo :: (event: PositionalHistoryEvent, undo: bool, world: *World) {
+    entity := get_entity(world, event.entity_id);
+    assert(entity != null, "could not modify history for entity with id %", event.entity_id);
+    entity.pos += ifx undo then -event.delta else event.delta;
+}
+
+undo :: (event: RotationalHistoryEvent, undo: bool, world: *World) {
+    entity := get_entity(world, event.entity_id);
+    assert(entity != null, "could not modify history for entity with id %", event.entity_id);
+    entity.theta += ifx undo then -event.delta else event.delta;
 }
 
 #scope_file

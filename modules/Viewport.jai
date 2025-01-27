@@ -5,7 +5,8 @@
 #import "Math";
 #import "Input";
 #import "Simp";
-#import "input_handler";
+#import "Selection";
+#import "Tagged_Union";
 
 quit : bool;
 
@@ -102,7 +103,7 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
                 } else if key == xx #char "X" {
                     on_global_local(cam, it);
                 } else if key == xx #char "Z" {
-                    on_history(vp, cam, world, history, it);
+                    if it.key_pressed then on_history(vp, cam, world, history);
                 } else if key == .DELETE {
                     on_delete(cam, world, history, it);
                 } else if key == .SHIFT {
@@ -125,6 +126,70 @@ min_drag_distance :: 10;
 Vector32s :: struct {
     x : s32;
     y : s32;
+}
+
+on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
+    if ev.key_pressed {
+        vp.left_mouse_button.pressed = true;
+        vp.left_mouse_button.pressed_this_frame = true;
+
+        vp.left_mouse_button.pressed_screen_pos = vp.pointer.screen_pos;
+        vp.left_mouse_button.pressed_world_pos = screen_to_world_pos(cam, vp.pointer.screen_pos);
+    } else {
+        vp.left_mouse_button.released_this_frame = true;
+        vp.left_mouse_button.pressed = false;
+        vp.left_mouse_button.is_grab = false;
+    }
+}
+
+on_mouse_right :: (vp: *Viewport, cam: *Camera, ev: Event) {
+    if ev.key_pressed {
+        vp.right_mouse_button.pressed = true;
+        vp.right_mouse_button.pressed_this_frame = true;
+
+        vp.right_mouse_button.pressed_screen_pos = vp.pointer.screen_pos;
+        vp.right_mouse_button.pressed_world_pos = screen_to_world_pos(cam, vp.pointer.screen_pos);
+    } else {
+        vp.right_mouse_button.released_this_frame = true;
+        vp.right_mouse_button.pressed = false;
+        vp.right_mouse_button.is_grab = false;
+    }
+}
+
+on_shift :: (vp: *Viewport, ev: Event) {
+    vp.shift = ifx ev.key_pressed then true else false;
+}
+
+on_ctrl :: (vp: *Viewport, ev: Event) {
+    vp.ctrl = ifx ev.key_pressed then true else false;
+}
+
+on_a :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
+    if vp.shift && ev.key_pressed {
+        entity := add_entity(world);
+        entity.pos = vp.pointer.pointer_world_pos;
+            
+        // history
+        {
+            event : HistoricalEvent;
+            set(*event, AddedHistoryEvent.{ entity.id });
+            record(history, event);
+        }
+
+        select_entity(cam, history, entity);
+    }
+}
+
+on_tool :: (cam: *Camera, ev: Event) {
+    if !ev.key_pressed then switch_tool(cam);
+}
+
+on_global_local :: (cam: *Camera, ev: Event) {
+    if !ev.key_pressed then cam.is_global = !cam.is_global;
+}
+
+on_delete :: (cam: *Camera, world: *World, history: *History, ev: Event) {
+    if !ev.key_pressed then delete_selected(cam, world, history);
 }
 
 consider_begin_grab :: (sate: *MouseButtonState, vp: *Viewport) {

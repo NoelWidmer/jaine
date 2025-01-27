@@ -1,11 +1,9 @@
 #import "Basic"; //()(MEMORY_DEBUGGER=true);
 
-#import "input_handler";
-#import "Selection";
-#import "Camera";
-#import "History";
 #import "Viewport";
+#import "Camera";
 #import "World";
+#import "History";
 
 main :: () {
     vp := new_viewport();
