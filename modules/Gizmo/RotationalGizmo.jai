@@ -3,19 +3,25 @@ RotationalGizmo :: struct {
     pending: float;
 }
 
-update_gizmo :: (gizmo: *RotationalGizmo) {
-
+update_gizmo :: (gizmo: *RotationalGizmo, vp: *Viewport, cam: *Camera, history: *History, center: Vector2) {
+    if gizmo.grabbed  {
+        if vp.left_mouse_button.released_this_frame 
+            then release_gizmo(cam, history, gizmo);
+            else drag_gizmo(vp, cam, gizmo);
+    } else {
+        if vp.left_mouse_button.pressed_this_frame then try_begin_gizmo_grab(vp, gizmo, center);
+    }
 }
 
 draw_rotational_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo, center: Vector2, dir_x: Vector2) {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
     if gizmo.grabbed {
-        center_to_grab_dir := normalize(vp.left_pressed_world_pos - center);
+        center_to_grab_dir := normalize(vp.left_mouse_button.pressed_world_pos - center);
 
         // partial circle
         {
-            center_to_pointer_dir := normalize(vp.pointer_world_pos - center);
+            center_to_pointer_dir := normalize(vp.pointer.pointer_world_pos - center);
             left := rotate_dir_90_deg_ccw(center_to_grab_dir);
             degrees := angle(center_to_grab_dir, center_to_pointer_dir);
             if dot(left, center_to_pointer_dir) > 0 then degrees = -degrees;
@@ -27,7 +33,7 @@ draw_rotational_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo, 
         draw_world_vector(cam, center, center_to_grab_dir * outer_radius, 1, color_gizmo_blue);
 
         // to pointer
-        draw_world_line(cam, center, vp.pointer_world_pos, 1, color_gizmo_interactive);
+        draw_world_line(cam, center, vp.pointer.pointer_world_pos, 1, color_gizmo_interactive);
     } else {
         draw_partial_circle_world_outline(cam, center, dir_y, inner_radius, 90, 12, gizmo_interaction_size * .5, color_gizmo_blue);
     }
@@ -35,8 +41,10 @@ draw_rotational_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo, 
     draw_gizmo_axis(cam, center, dir_y, dir_x);
 }
 
+#scope_file
+
 try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *RotationalGizmo, center: Vector2) -> bool {
-    dist := distance(vp.pointer_world_pos, center);
+    dist := distance(vp.pointer.pointer_world_pos, center);
 
     if dist > outer_radius return false;
 
@@ -48,13 +56,13 @@ try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *RotationalGizmo, center: Vector2
     return false;
 }
 
-try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo) {
-    if !gizmo.grabbed || !vp.has_pointer_moved return;
+drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *RotationalGizmo) {
+    if !gizmo.grabbed || vp.pointer.screen_delta == .{ 0, 0 } return;
 
     selected_screen_pos := world_to_screen_pos(cam, cam.selection.entity.pos);
 
-    from := normalize(vp.last_pointer_screen_pos - selected_screen_pos);
-    to := normalize(vp.pointer_screen_pos - selected_screen_pos);
+    from := normalize(vp.pointer.last_screen_pos - selected_screen_pos);
+    to := normalize(vp.pointer.screen_pos - selected_screen_pos);
     theta := angle(from, to);
 
     if theta == 0 return;
@@ -83,8 +91,6 @@ release_gizmo :: (cam: *Camera, history: *History, gizmo: *RotationalGizmo) {
         gizmo.pending = 0;
     }
 }
-
-#scope_file
 
 outer_radius :: gizmo_length;
 inner_radius :: outer_radius - gizmo_interaction_size * .5;

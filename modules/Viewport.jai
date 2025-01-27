@@ -18,32 +18,33 @@ Viewport :: struct {
     screen_size : Vector32s;
     world_size: Vector2;
 
-    last_pointer_screen_pos : Vector2;
-    last_pointer_world_pos : Vector2;
-
-    pointer_screen_pos : Vector2;
-    pointer_world_pos : Vector2;
-
-    has_pointer_moved: bool;
-    pointer_delta : Vector2;
-    
-    left_pressed_screen_pos : Vector2;
-    left_pressed_world_pos : Vector2;
-    is_left_mouse_pressed : bool;
-    is_left_mouse_pressed_this_frame : bool;
-    is_left_grab : bool;
-
-    right_pressed_screen_pos : Vector2;
-    right_pressed_world_pos : Vector2;
-    is_right_mouse_pressed : bool;
-    is_right_mouse_pressed_this_frame : bool;
-    is_right_grab : bool;
+    pointer : MousePointerState;
+    left_mouse_button : MouseButtonState;
+    right_mouse_button : MouseButtonState;
 
     shift : bool;
     ctrl : bool;
 }
 
-create_viewport :: () -> Viewport {
+MouseButtonState :: struct {
+    pressed : bool;
+    pressed_this_frame : bool;
+    pressed_screen_pos : Vector2;
+    pressed_world_pos : Vector2;
+    is_grab : bool;
+    released_this_frame : bool;
+}
+
+MousePointerState :: struct {
+    last_screen_pos : Vector2;
+
+    screen_pos : Vector2;
+    pointer_world_pos : Vector2;
+
+    screen_delta : Vector2;
+}
+
+new_viewport :: () -> Viewport {
     vp_width : s32 = 1920 / 2;
     vp_height : s32 = 1080 / 2;
 
@@ -66,11 +67,14 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
         
         if it.window == vp.window then on_viewport_size_changed(vp, it.width, it.height);
     }
+
+    vp.left_mouse_button.pressed_this_frame = false;
+    vp.left_mouse_button.released_this_frame = false;
+
+    vp.right_mouse_button.pressed_this_frame = false;    
+    vp.right_mouse_button.released_this_frame = false;
     
     invalidate_pointer_screen_pos(vp, cam);
-
-    vp.is_left_mouse_pressed_this_frame = false;
-    vp.is_right_mouse_pressed_this_frame = false;
         
     for events_this_frame {
         type := it.type;
@@ -107,13 +111,25 @@ update_viewport :: (vp: *Viewport, cam: *Camera, world: *World, history: *Histor
             }
         }            
     }
+    
+    consider_begin_grab(*vp.left_mouse_button, vp);
+    consider_begin_grab(*vp.right_mouse_button, vp);
 }
 
 #scope_file
 
+min_drag_distance :: 10;
+
 Vector32s :: struct {
     x : s32;
     y : s32;
+}
+
+consider_begin_grab :: (sate: *MouseButtonState, vp: *Viewport) {
+    if sate.pressed && !sate.is_grab {
+        drag_vec := vp.pointer.screen_pos - sate.pressed_screen_pos;
+        if length(drag_vec) > min_drag_distance then sate.is_grab = true;
+    }
 }
 
 toggle_fullscreen :: (vp: *Viewport) -> bool {
@@ -141,19 +157,14 @@ invalidate_pointer_screen_pos :: (vp: *Viewport, cam: *Camera) {
     x, y, success := get_mouse_pointer_position(vp.window, true);
 
     if success {
-        vp.last_pointer_screen_pos = vp.pointer_screen_pos;
-        vp.pointer_screen_pos = Vector2.{ xx x, xx y };
+        vp.pointer.last_screen_pos = vp.pointer.screen_pos;
+        vp.pointer.screen_pos = Vector2.{ xx x, xx y };
 
-        if vp.pointer_screen_pos == vp.last_pointer_screen_pos {
-            vp.has_pointer_moved = false;
-            vp.pointer_delta = .{};
+        if vp.pointer.screen_pos == vp.pointer.last_screen_pos {
+            vp.pointer.screen_delta = .{ 0, 0 };
         } else {
-            vp.has_pointer_moved = true;
-            vp.pointer_delta = vp.pointer_screen_pos - vp.last_pointer_screen_pos;
-
-            // TODO: pointer world position also depends on camera position. so this is not going to work properly.
-            vp.last_pointer_world_pos = vp.pointer_world_pos;
-            vp.pointer_world_pos = screen_to_world_pos(cam, vp.pointer_screen_pos);
+            vp.pointer.screen_delta = vp.pointer.screen_pos - vp.pointer.last_screen_pos;
+            vp.pointer.pointer_world_pos = screen_to_world_pos(cam, vp.pointer.screen_pos);
         }
     }
 }

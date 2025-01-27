@@ -15,27 +15,26 @@ Selection :: struct {
     gizmo: Gizmo;
 }
 
-update_selection :: (selection: *Selection, cam: *Camera) {
-    if selection.entity == null return;
-    
-    if tool == {
-        case Tool.Move; update_gizmo(*selection.gizmo.vector2);
-        case Tool.Rotate; update_gizmo(*selection.gizmo.theta, selection.entity.pos);
-    }
-}
-
-try_select_entity_under_pointer :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) -> bool {
-    for *world.entities {
-        quad := get_entity_quad(it);
-
-        if is_inside_quad(vp.pointer_world_pos, quad) {
-            select_entity(cam, history, it);
-            return true;
+update_selection :: (selection: *Selection, vp: *Viewport, cam: *Camera, history: *History, world: *World) {
+    // update gizmo
+    if selection.entity != null {
+        if cam.tool == {
+            case Tool.Move; update_gizmo(*selection.gizmo.vector2, vp, cam, history);
+            case Tool.Rotate; update_gizmo(*selection.gizmo.theta, vp, cam, history, cam.selection.entity.pos);
         }
-    }
+    }    
+    
+    // update selection
+    if vp.left_mouse_button.pressed_this_frame {
+        is_gizmo_interaction := false;
 
-    deselect_entity(cam, history);
-    return false;
+        if cam.tool == {
+            case Tool.Move; is_gizmo_interaction = selection.gizmo.vector2.mode != PositionalGizmoMode.None;
+            case Tool.Rotate; is_gizmo_interaction = selection.gizmo.theta.grabbed;
+        }
+
+        if !is_gizmo_interaction then try_select_entity_under_pointer(vp, cam, world, history);
+    }
 }
 
 select_entity :: (cam: * Camera, history: *History, entity: *Entity) {
@@ -111,33 +110,6 @@ delete_selected :: (cam: *Camera, world: *World, history: *History) {
     }
 }
 
-try_grab_selected_gizmo :: (vp: *Viewport, cam: *Camera) {
-    if cam.selection.entity == null return;
-    
-    if cam.tool == {
-        case Tool.Move; try_begin_gizmo_grab(vp, *cam.selection.gizmo.vector2);
-        case Tool.Rotate; try_begin_gizmo_grab(vp, *cam.selection.gizmo.theta, cam.selection.entity.pos);
-    }
-}
-
-try_drag_selected_gizmo :: (vp: *Viewport, cam: *Camera) {
-    if cam.selection.entity == null return;
-    
-    if cam.tool == {
-        case Tool.Move; try_drag_gizmo(vp, cam, *cam.selection.gizmo.vector2);
-        case Tool.Rotate; try_drag_gizmo(vp, cam, *cam.selection.gizmo.theta);
-    }
-}
-
-release_selected_gizmo :: (cam: *Camera, history: *History) {
-    if cam.selection.entity == null return;
-
-    if cam.tool == {
-        case Tool.Move; release_gizmo(cam, history, *cam.selection.gizmo.vector2);
-        case Tool.Rotate; release_gizmo(cam, history, *cam.selection.gizmo.theta);
-    }
-}
-
 draw_selection :: (vp: *Viewport, cam: *Camera) {
     if cam.selection.entity == null return;
     
@@ -151,4 +123,20 @@ draw_selection :: (vp: *Viewport, cam: *Camera) {
         case Tool.Move; draw_positional_gizmo(cam, *cam.selection.gizmo.vector2, cam.selection.entity.pos, right);
         case Tool.Rotate; draw_rotational_gizmo(vp, cam, *cam.selection.gizmo.theta, cam.selection.entity.pos, right);
     }
+}
+
+#scope_file
+
+try_select_entity_under_pointer :: (vp: *Viewport, cam: *Camera, world: *World, history: *History) -> bool {
+    for *world.entities {
+        quad := get_entity_quad(it);
+
+        if is_inside_quad(vp.pointer.pointer_world_pos, quad) {
+            select_entity(cam, history, it);
+            return true;
+        }
+    }
+
+    deselect_entity(cam, history);
+    return false;
 }

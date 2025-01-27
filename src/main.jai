@@ -1,7 +1,5 @@
 #import "Basic"; //()(MEMORY_DEBUGGER=true);
 
-#import "Simp";
-
 #import "input_handler";
 #import "Selection";
 #import "Camera";
@@ -10,10 +8,11 @@
 #import "World";
 
 main :: () {
-    vp := create_viewport();
-    set_render_target(vp.window);
+    vp := new_viewport();
 
     cam := new_camera();
+    cam.render_target = *vp;
+
     world := new_world();
     history := new_history(HistoricalEvent);
 
@@ -23,27 +22,9 @@ main :: () {
         reset_temporary_storage();   
          
         update_viewport(*vp, *cam, *world, *history);
-        update_input(*vp, *cam);
-        update_cam(*vp, *cam);
+        update_cam(*vp, *cam, *history, *world);
 
-        // render frame
-        {
-            // paint over previous frame with background color
-            {
-                background_color :: struct { 
-                    r :: .1; 
-                    g :: .1; 
-                    b :: .2;
-                };
-
-                clear_render_target(background_color.r, background_color.g, background_color.b, 1);
-            }
-
-            draw_world(*cam, *world);
-            draw_selection(*vp, *cam);
-        }
-
-        swap_buffers(vp.window);
+        render(*cam, *world);
         
         // update time
         {
@@ -58,6 +39,6 @@ main :: () {
 
 #scope_file
 
-frame_count : int;
 last_time : float64;
 delta_time : float;
+frame_count : u64;

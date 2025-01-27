@@ -15,6 +15,16 @@ PositionalGizmoMode :: enum u8 {
     XY;
 }
 
+update_gizmo :: (gizmo: *PositionalGizmo, vp: *Viewport, cam: *Camera, history: *History) {
+    if gizmo.mode == PositionalGizmoMode.None {
+        if vp.left_mouse_button.pressed_this_frame then grab_gizmo(vp, gizmo);
+    } else if vp.left_mouse_button.released_this_frame {
+        release_gizmo(cam, history, gizmo);
+    } else {
+        drag_gizmo(vp, cam, gizmo);
+    }
+}
+
 draw_positional_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo, pos: Vector2, dir_x: Vector2) {
     dir_y := rotate_dir_90_deg_ccw(dir_x);
 
@@ -100,27 +110,20 @@ draw_positional_gizmo :: (cam: *Camera, gizmo: *PositionalGizmo, pos: Vector2, d
     }
 }
 
-update_gizmo :: (gizmo: *PositionalGizmoMode, vp: *Viewport) {
-    if gizmo.mode {
-        case PositionalGizmoMode.None;
-            if vp.is_left_mouse_pressed_this_frame {
-                try_begin_gizmo_grab(vp, gizmo);
-            }
-    }
-}
+#scope_file
 
-try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *PositionalGizmo) -> bool {
-    if is_inside_quad(vp.pointer_world_pos, gizmo.quad_xy) {
+grab_gizmo :: (vp: *Viewport, gizmo: *PositionalGizmo) -> bool {
+    if is_inside_quad(vp.pointer.pointer_world_pos, gizmo.quad_xy) {
         gizmo.mode = PositionalGizmoMode.XY;
         return true;
     }
 
-    if is_inside_triangle(vp.pointer_world_pos, gizmo.tri_x) {
+    if is_inside_triangle(vp.pointer.pointer_world_pos, gizmo.tri_x) {
         gizmo.mode = PositionalGizmoMode.X;
         return true;
     }
 
-    if is_inside_triangle(vp.pointer_world_pos, gizmo.tri_y) {
+    if is_inside_triangle(vp.pointer.pointer_world_pos, gizmo.tri_y) {
         gizmo.mode = PositionalGizmoMode.Y;
         return true;
     }
@@ -128,16 +131,16 @@ try_begin_gizmo_grab :: (vp: *Viewport, gizmo: *PositionalGizmo) -> bool {
     return false;
 }
 
-try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *PositionalGizmo) {
-    if gizmo.mode == PositionalGizmoMode.None return;
+drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *PositionalGizmo) {
+    if vp.pointer.screen_delta == .{ 0, 0 } return;
 
     world_pos := cam.selection.entity.pos;
 
     delta_pos : Vector2;
     if gizmo.mode == {
-        case PositionalGizmoMode.X; delta_pos = project(vp.pointer_delta, gizmo.dir_x);
-        case PositionalGizmoMode.Y; delta_pos = project(vp.pointer_delta, gizmo.dir_y);
-        case PositionalGizmoMode.XY; delta_pos = vp.pointer_delta;
+        case PositionalGizmoMode.X; delta_pos = project(vp.pointer.screen_delta, gizmo.dir_x);
+        case PositionalGizmoMode.Y; delta_pos = project(vp.pointer.screen_delta, gizmo.dir_y);
+        case PositionalGizmoMode.XY; delta_pos = vp.pointer.screen_delta;
     }
 
     gizmo.pending += delta_pos;
@@ -146,17 +149,14 @@ try_drag_gizmo :: (vp: *Viewport, cam: *Camera, gizmo: *PositionalGizmo) {
 
 release_gizmo :: (cam: *Camera, history: *History, gizmo: *PositionalGizmo) {
     gizmo.mode = PositionalGizmoMode.None;
+    if gizmo.pending == .{ 0, 0 } then return;
+    
+    event : HistoricalEvent;
+    set(*event, PositionalHistoryEvent.{ cam.selection.entity.id, gizmo.pending });
+    record(history, event);
 
-    if gizmo.pending != .{ 0, 0 } {
-        event : HistoricalEvent;
-        set(*event, PositionalHistoryEvent.{ cam.selection.entity.id, gizmo.pending });
-        record(history, event);
-
-        gizmo.pending = .{ 0, 0 };
-    }
+    gizmo.pending = .{ 0, 0 };
 }
-
-#scope_file
 
 gizmo_quad_length :: gizmo_interaction_size;
 gizmo_arrow_height :: gizmo_interaction_size;

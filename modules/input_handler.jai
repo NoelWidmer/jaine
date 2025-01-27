@@ -10,40 +10,29 @@
 
 on_mouse_left :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
     if ev.key_pressed {
-        vp.is_left_mouse_pressed = true;
-        vp.is_left_mouse_pressed_this_frame = true;
+        vp.left_mouse_button.pressed = true;
+        vp.left_mouse_button.pressed_this_frame = true;
 
-        vp.left_pressed_screen_pos = vp.pointer_screen_pos;
-        vp.left_pressed_world_pos = screen_to_world_pos(cam, vp.left_pressed_screen_pos);
-        
-        try_grab_selected_gizmo(vp, cam);
+        vp.left_mouse_button.pressed_screen_pos = vp.pointer.screen_pos;
+        vp.left_mouse_button.pressed_world_pos = screen_to_world_pos(cam, vp.pointer.screen_pos);
     } else {
-        vp.is_left_mouse_pressed = false;
-        release_selected_gizmo(cam, history);
-
-        if vp.is_left_grab {
-            vp.is_left_grab = false;
-        } else {
-            try_select_entity_under_pointer(vp, cam, world, history);
-        }
+        vp.left_mouse_button.released_this_frame = true;
+        vp.left_mouse_button.pressed = false;
+        vp.left_mouse_button.is_grab = false;
     }
 }
 
 on_mouse_right :: (vp: *Viewport, cam: *Camera, ev: Event) {
     if ev.key_pressed {
-        vp.is_right_mouse_pressed = true;
-        vp.is_right_mouse_pressed_this_frame = true;
+        vp.right_mouse_button.pressed = true;
+        vp.right_mouse_button.pressed_this_frame = true;
 
-        vp.right_pressed_screen_pos = vp.pointer_screen_pos;
-        vp.right_pressed_world_pos = screen_to_world_pos(cam, vp.right_pressed_screen_pos);
+        vp.right_mouse_button.pressed_screen_pos = vp.pointer.screen_pos;
+        vp.right_mouse_button.pressed_world_pos = screen_to_world_pos(cam, vp.pointer.screen_pos);
     } else {
-        vp.is_right_mouse_pressed = false;
-
-        if vp.is_right_grab {
-            vp.is_right_grab = false;
-        } else {
-            // show context menu once we have one
-        }
+        vp.right_mouse_button.released_this_frame = true;
+        vp.right_mouse_button.pressed = false;
+        vp.right_mouse_button.is_grab = false;
     }
 }
 
@@ -140,7 +129,7 @@ on_ctrl :: (vp: *Viewport, ev: Event) {
 on_a :: (vp: *Viewport, cam: *Camera, world: *World, history: *History, ev: Event) {
     if vp.shift && ev.key_pressed {
         entity := add_entity(world);
-        entity.pos = vp.pointer_world_pos;
+        entity.pos = vp.pointer.pointer_world_pos;
             
         // history
         {
@@ -163,44 +152,4 @@ on_global_local :: (cam: *Camera, ev: Event) {
 
 on_delete :: (cam: *Camera, world: *World, history: *History, ev: Event) {
     if !ev.key_pressed then delete_selected(cam, world, history);
-}
-
-update_input :: (vp: *Viewport, cam: *Camera) {
-    if vp.is_right_mouse_pressed {
-        if vp.is_right_grab {
-            drag_right(vp, cam);
-        } else {
-            drag_vec := vp.pointer_screen_pos - vp.right_pressed_screen_pos;
-
-            if length(drag_vec) > min_drag_distance {
-                vp.is_right_grab = true;
-                drag_right(vp, cam);
-            }
-        }
-    }
-    
-    if vp.is_left_mouse_pressed {
-        if vp.is_left_grab {
-            drag_left(vp, cam);
-        } else {
-            drag_vec := vp.pointer_screen_pos - vp.left_pressed_screen_pos;
-
-            if length(drag_vec) > min_drag_distance {
-                vp.is_left_grab = true;
-                drag_left(vp, cam);
-            }
-        }
-    }
-}
-
-#scope_file
-
-min_drag_distance :: 10;
-
-drag_right :: (vp: *Viewport, cam: *Camera) {
-    move_camera(cam, -vp.pointer_delta);
-}
-
-drag_left :: (vp: *Viewport, cam: *Camera) {
-    try_drag_selected_gizmo(vp, cam);
 }
